@@ -1,0 +1,245 @@
+---
+interface Props {
+  title: string;
+  description: string;
+}
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow" />
+    <link rel="icon" type="image/png" href="/img/Providers valle medios FO - Horizontal-1.png" />
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <slot />
+    <script>
+      // Scroll Reveal
+      function initReveal() {
+        const els = document.querySelectorAll(".reveal");
+        if (!els.length) return;
+        document
+          .querySelectorAll(".servicios-grid, .planes-grid")
+          .forEach((grid) => {
+            grid.querySelectorAll(".reveal").forEach((card, i) => {
+              (card as HTMLElement).style.transitionDelay = `${i * 90}ms`;
+            });
+          });
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              entry.target.classList.add("visible");
+              observer.unobserve(entry.target);
+            });
+          },
+          { threshold: 0.1, rootMargin: "0px 0px -40px 0px" },
+        );
+        els.forEach((el) => observer.observe(el));
+      }
+      document.addEventListener("DOMContentLoaded", initReveal);
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  /* ============================================
+     DESIGN SYSTEM & RESET
+  ============================================ */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  :root {
+    --black: #0a0a0a;
+    --dark: #111111;
+    --darker: #0d0d0d;
+    --card-bg: #181818;
+    --border: rgba(255, 255, 255, 0.08);
+    --white: #ffffff;
+    --off-white: #e8e8e8;
+    --muted: rgba(255, 255, 255, 0.55);
+    --accent: #4fc3f7;
+    --accent-dark: #0288d1;
+    --font: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    --radius: 12px;
+    --radius-lg: 20px;
+    --nav-h: 68px;
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --transition: 0.3s var(--ease);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--black);
+    color: var(--white);
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+  ul {
+    list-style: none;
+  }
+
+  /* --- Container --- */
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* --- Section Backgrounds --- */
+  .section-dark {
+    background: #111111;
+  }
+  .section-darker {
+    background: #0d0d0d;
+  }
+
+  /* --- Section Header --- */
+  .section-header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+
+  .section-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(79, 195, 247, 0.1);
+    padding: 5px 14px;
+    border-radius: 100px;
+    border: 1px solid rgba(79, 195, 247, 0.2);
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: clamp(1.9rem, 4vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+  }
+
+  .section-subtitle {
+    color: var(--muted);
+    font-size: 1.05rem;
+    max-width: 540px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* --- Buttons --- */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--white);
+    color: var(--black);
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 13px 26px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    transition:
+      background var(--transition),
+      transform var(--transition),
+      box-shadow var(--transition);
+    cursor: pointer;
+  }
+  .btn-primary:hover {
+    background: var(--off-white);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15);
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    background: transparent;
+    color: var(--white);
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 13px 26px;
+    border-radius: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    transition:
+      background var(--transition),
+      border-color var(--transition),
+      transform var(--transition);
+  }
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--white);
+    transform: translateY(-2px);
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    color: var(--white);
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 13px 24px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition:
+      border-color var(--transition),
+      background var(--transition);
+  }
+  .btn-ghost:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  /* --- Reveal animation --- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.65s var(--ease),
+      transform 0.65s var(--ease);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+</style>

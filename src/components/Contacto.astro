@@ -1,0 +1,301 @@
+---
+// Contacto.astro
+interface ContactItem {
+  id: string;
+  icon: string;
+  title: string;
+  detail: string;
+}
+
+const contactItems: ContactItem[] = [
+  {
+    id: "ci-telefono",
+    icon: `<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.13 12.72 19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>`,
+    title: "Teléfono",
+    detail: "+54 9 381 554 0025",
+  },
+  {
+    id: "ci-email",
+    icon: `<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>`,
+    title: "Email",
+    detail: "contacto@vallemedios.com.ar",
+  },
+  {
+    id: "ci-zona",
+    icon: `<circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.5 8 14 8 14s8-8.5 8-14a8 8 0 0 0-8-8z"/>`,
+    title: "Zona de cobertura",
+    detail: "Tafi del Valle — Tucumán, Argentina",
+  },
+  {
+    id: "ci-horarios",
+    icon: `<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`,
+    title: "Horarios de atención",
+    detail: "Lun–Vie 9:00–18:00 · Sáb y Dom 10:00–14:00",
+  },
+];
+---
+
+<section class="contacto section-dark" id="contacto">
+  <div class="container">
+    <header class="section-header reveal">
+      <span class="section-tag">Contacto</span>
+      <h2 class="section-title">Hablemos</h2>
+      <p class="section-subtitle">
+        Completá el formulario y te contactamos en menos de 24 horas hábiles.
+      </p>
+    </header>
+
+    <div class="contacto-grid">
+      <!-- Form -->
+      <form class="contact-form reveal" id="contact-form" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nombre">Nombre completo</label>
+            <input
+              type="text"
+              id="nombre"
+              name="nombre"
+              placeholder="Tu nombre"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="telefono">Teléfono</label>
+            <input
+              type="tel"
+              id="telefono"
+              name="telefono"
+              placeholder="+54 9 ..."
+              required
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="email">Correo electrónico</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="tu@email.com"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="direccion">Dirección</label>
+          <input
+            type="text"
+            id="direccion"
+            name="direccion"
+            placeholder="Calle, número, localidad"
+          />
+        </div>
+        <div class="form-group">
+          <label for="mensaje">Mensaje</label>
+          <textarea
+            id="mensaje"
+            name="mensaje"
+            rows={4}
+            placeholder="¿En qué podemos ayudarte?"></textarea>
+        </div>
+        <button
+          type="submit"
+          class="btn-primary btn-submit"
+          id="btn-enviar-form"
+        >
+          Enviar Consulta
+        </button>
+        <p
+          class="form-success"
+          id="form-success"
+          role="alert"
+          aria-live="polite"
+        >
+          ¡Mensaje enviado! Nos ponemos en contacto pronto.
+        </p>
+      </form>
+
+      <!-- Info -->
+      <aside class="contact-info reveal">
+        {
+          contactItems.map(({ id, icon, title, detail }) => (
+            <div class="contact-item" id={id}>
+              <div class="contact-icon" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  set:html={icon}
+                />
+              </div>
+              <div>
+                <h3>{title}</h3>
+                <p>{detail}</p>
+              </div>
+            </div>
+          ))
+        }
+      </aside>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contacto {
+    padding: 100px 0;
+  }
+
+  .contacto-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 60px;
+    align-items: start;
+  }
+
+  /* Form */
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--off-white);
+    letter-spacing: 0.02em;
+  }
+  .form-group input,
+  .form-group textarea {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--white);
+    font-family: var(--font);
+    font-size: 0.95rem;
+    outline: none;
+    resize: none;
+    transition:
+      border-color var(--transition),
+      background var(--transition);
+  }
+  .form-group input::placeholder,
+  .form-group textarea::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+  }
+  .form-group input:focus,
+  .form-group textarea:focus {
+    border-color: rgba(79, 195, 247, 0.5);
+    background: rgba(79, 195, 247, 0.05);
+  }
+
+  .btn-submit {
+    align-self: flex-start;
+    font-size: 1rem;
+    padding: 14px 32px;
+    cursor: pointer;
+    border: none;
+    font-family: var(--font);
+  }
+
+  .form-success {
+    display: none;
+    color: #4ade80;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 12px 16px;
+    background: rgba(74, 222, 128, 0.08);
+    border: 1px solid rgba(74, 222, 128, 0.2);
+    border-radius: 8px;
+  }
+  .form-success.visible {
+    display: block;
+  }
+
+  /* Info */
+  .contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding-top: 8px;
+  }
+  .contact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .contact-icon {
+    width: 44px;
+    height: 44px;
+    background: rgba(79, 195, 247, 0.1);
+    border: 1px solid rgba(79, 195, 247, 0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .contact-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--accent);
+  }
+
+  .contact-item h3 {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--off-white);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .contact-item p {
+    color: var(--muted);
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 768px) {
+    .contacto-grid {
+      grid-template-columns: 1fr;
+    }
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const form = document.getElementById(
+    "contact-form",
+  ) as HTMLFormElement | null;
+  const successMsg = document.getElementById("form-success");
+
+  form?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const btn = form.querySelector<HTMLButtonElement>(".btn-submit")!;
+    btn.textContent = "Enviando...";
+    btn.disabled = true;
+
+    setTimeout(() => {
+      btn.textContent = "¡Enviado!";
+      successMsg?.classList.add("visible");
+      form.reset();
+      setTimeout(() => {
+        btn.textContent = "Enviar Consulta";
+        btn.disabled = false;
+        successMsg?.classList.remove("visible");
+      }, 4000);
+    }, 1200);
+  });
+</script>

@@ -1,0 +1,27 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Hero from '../components/Hero.astro';
+import Servicios from '../components/Servicios.astro';
+import Planes from '../components/Planes.astro';
+// import Cobertura from '../components/Cobertura.astro';
+import CtaBanner from '../components/CtaBanner.astro';
+import Contacto from '../components/Contacto.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout
+  title="Valle Medios Fibra Óptica | Conectividad a la velocidad del valle"
+  description="Valle Medios ofrece internet de alta velocidad con fibra óptica. Conexión estable y rápida para tu hogar o negocio. 99.9% de uptime garantizado."
+>
+  <Navbar />
+  <main>
+    <Hero />
+    <Servicios />
+    <Planes />
+    {/* <Cobertura /> */}
+    <CtaBanner />
+    <Contacto />
+  </main>
+  <Footer />
+</Layout>

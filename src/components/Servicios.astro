@@ -1,0 +1,180 @@
+---
+// Servicios.astro
+interface Service {
+  id: string;
+  icon: string;
+  title: string;
+  desc: string;
+  linkText: string;
+  linkHref: string;
+  featured?: boolean;
+}
+
+const services: Service[] = [
+  {
+    id: "servicio-hogar",
+    icon: `<path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>`,
+    title: "Fibra al Hogar",
+    desc: "Conexión de fibra óptica directa a tu domicilio. Velocidades simétricas de hasta 200 Mbps para streaming, gaming y trabajo remoto.",
+    linkText: "Ver planes hogares",
+    linkHref: "#planes",
+  },
+  {
+    id: "servicio-empresarial",
+    icon: `<rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/>`,
+    title: "Internet Empresarial",
+    desc: "Soluciones dedicadas para empresas con SLA garantizado, IP fija y soporte prioritario. Mantén tu negocio siempre conectado.",
+    linkText: "Solicitar cotización",
+    linkHref: "#contacto",
+    featured: true,
+  },
+  {
+    id: "servicio-soporte",
+    icon: `<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.13 12.72 19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>`,
+    title: "Soporte 24/7",
+    desc: "Atención técnica disponible las 24 horas del día, los 7 días de la semana. Resolvemos tus inconvenientes sin demoras.",
+    linkText: "Contactar soporte",
+    linkHref: "#contacto",
+  },
+];
+---
+
+<section class="servicios section-dark" id="servicios">
+  <div class="container">
+    <header class="section-header reveal">
+      <span class="section-tag">Nuestros Servicios</span>
+      <h2 class="section-title">
+        Todo lo que necesitas<br />para estar conectado
+      </h2>
+      <p class="section-subtitle">
+        Soluciones de conectividad diseñadas para hogares y empresas del valle.
+      </p>
+    </header>
+
+    <div class="servicios-grid">
+      {
+        services.map(
+          ({ id, icon, title, desc, linkText, linkHref, featured }) => (
+            <article
+              class={`servicio-card reveal${featured ? " featured" : ""}`}
+              id={id}
+            >
+              <div class="servicio-icon" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  set:html={icon}
+                />
+              </div>
+              <h3>{title}</h3>
+              <p>{desc}</p>
+              <a href={linkHref} class="card-link">
+                {linkText} →
+              </a>
+            </article>
+          ),
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .servicios {
+    padding: 100px 0;
+  }
+
+  .servicios-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .servicio-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 36px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition:
+      border-color var(--transition),
+      transform var(--transition),
+      box-shadow var(--transition);
+  }
+  .servicio-card:hover {
+    border-color: rgba(79, 195, 247, 0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+  }
+  .servicio-card.featured {
+    border-color: rgba(79, 195, 247, 0.4);
+    background: linear-gradient(135deg, #1a1f2e 0%, #181818 100%);
+    position: relative;
+  }
+  .servicio-card.featured::before {
+    content: "★";
+    position: absolute;
+    top: 18px;
+    right: 22px;
+    color: var(--accent);
+    font-size: 1rem;
+  }
+
+  .servicio-icon {
+    width: 52px;
+    height: 52px;
+    background: rgba(79, 195, 247, 0.1);
+    border: 1px solid rgba(79, 195, 247, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+  }
+  .servicio-icon svg {
+    width: 26px;
+    height: 26px;
+    stroke: var(--accent);
+  }
+
+  .servicio-card h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+  .servicio-card p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.65;
+    flex: 1;
+  }
+
+  .card-link {
+    color: var(--accent);
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-top: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: gap var(--transition);
+  }
+  .card-link:hover {
+    gap: 8px;
+  }
+
+  @media (max-width: 1024px) {
+    .servicios-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 640px) {
+    .servicios-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

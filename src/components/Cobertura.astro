@@ -1,0 +1,177 @@
+---
+// Cobertura.astro
+interface Zone {
+  color: string;
+  label: string;
+  status: string;
+}
+
+const zones: Zone[] = [
+  { color: "green", label: "Zona centro", status: "Disponible" },
+  { color: "yellow", label: "Zona norte", status: "En expansión" },
+  { color: "gray", label: "Zona rural", status: "Próximamente" },
+];
+---
+
+<section class="cobertura section-dark" id="cobertura">
+  <div class="container cobertura-inner">
+    <!-- Text -->
+    <div class="cobertura-text">
+      <div
+        class="section-header reveal"
+        style="text-align:left; margin-bottom:28px;"
+      >
+        <span class="section-tag">Cobertura</span>
+        <h2 class="section-title">¿Llegamos a tu zona?</h2>
+        <p class="section-subtitle" style="margin:0; text-align:left;">
+          Estamos expandiendo nuestra red de fibra óptica constantemente en el
+          valle. Consultanos para verificar disponibilidad en tu domicilio.
+        </p>
+      </div>
+
+      <ul class="cobertura-list reveal">
+        {
+          zones.map(({ color, label, status }) => (
+            <li>
+              <span class={`dot dot-${color}`} aria-hidden="true" />
+              <span>
+                {label} — <strong>{status}</strong>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <a
+        href="#contacto"
+        class="btn-primary reveal"
+        id="btn-verificar-cobertura"
+      >
+        Verificar mi dirección →
+      </a>
+    </div>
+
+    <!-- Map placeholder -->
+    <div class="cobertura-map reveal" aria-label="Mapa de cobertura">
+      <div class="map-placeholder">
+        <svg
+          viewBox="0 0 60 60"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          class="map-icon"
+          aria-hidden="true"
+        >
+          <circle
+            cx="30"
+            cy="26"
+            r="10"
+            stroke="rgba(255,255,255,0.3)"
+            stroke-width="2"></circle>
+          <path
+            d="M30 16C24.477 16 20 20.477 20 26C20 33.5 30 46 30 46C30 46 40 33.5 40 26C40 20.477 35.523 16 30 16Z"
+            stroke="rgba(255,255,255,0.5)"
+            stroke-width="2"
+            fill="none"></path>
+          <circle cx="30" cy="26" r="3" fill="rgba(100,200,255,0.8)"></circle>
+        </svg>
+        <p>Mapa de cobertura</p>
+        <span
+          >Consultanos para verificar disponibilidad en tu domicilio exacto</span
+        >
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cobertura {
+    padding: 100px 0;
+  }
+
+  .cobertura-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+
+  .cobertura-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+  .cobertura-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.95rem;
+  }
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-green {
+    background: #4ade80;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.5);
+  }
+  .dot-yellow {
+    background: #fbbf24;
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+  }
+  .dot-gray {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  .cobertura-map {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    min-height: 380px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      border-color var(--transition),
+      box-shadow var(--transition);
+  }
+  .cobertura-map:hover {
+    border-color: rgba(79, 195, 247, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .map-placeholder {
+    text-align: center;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .map-icon {
+    width: 80px;
+    height: 80px;
+    opacity: 0.6;
+    margin-bottom: 8px;
+  }
+  .map-placeholder p {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--off-white);
+  }
+  .map-placeholder span {
+    color: var(--muted);
+    font-size: 0.88rem;
+    max-width: 260px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 1024px) {
+    .cobertura-inner {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+  }
+</style>

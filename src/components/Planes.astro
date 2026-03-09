@@ -1,0 +1,279 @@
+---
+// Planes.astro
+interface Feature {
+  label: string;
+  included: boolean;
+}
+interface Plan {
+  id: string;
+  name: string;
+  speed: number;
+  desc: string;
+  features: Feature[];
+  popular?: boolean;
+}
+
+const plans: Plan[] = [
+  {
+    id: "plan-basico",
+    name: "Básico",
+    speed: 50,
+    desc: "Ideal para uso cotidiano y redes sociales",
+    features: [
+      { label: "Velocidad simétrica 50/50 Mbps", included: true },
+      { label: "WiFi incluido", included: true },
+      { label: "Sin límite de datos", included: true },
+      { label: "Soporte técnico", included: true },
+      { label: "IP Fija", included: false },
+    ],
+  },
+  {
+    id: "plan-hogar",
+    name: "Hogar",
+    speed: 100,
+    desc: "Perfecto para familias y trabajo remoto",
+    popular: true,
+    features: [
+      { label: "Velocidad simétrica 100/100 Mbps", included: true },
+      { label: "WiFi 6 incluido", included: true },
+      { label: "Sin límite de datos", included: true },
+      { label: "Soporte prioritario", included: true },
+      { label: "IP Fija", included: false },
+    ],
+  },
+  {
+    id: "plan-pro",
+    name: "Pro",
+    speed: 200,
+    desc: "Para profesionales y empresas exigentes",
+    features: [
+      { label: "Velocidad simétrica 200/200 Mbps", included: true },
+      { label: "WiFi 6 Pro incluido", included: true },
+      { label: "Sin límite de datos", included: true },
+      { label: "Soporte 24/7", included: true },
+      { label: "IP Fija", included: true },
+    ],
+  },
+];
+---
+
+<section class="planes section-darker" id="planes">
+  <div class="container">
+    <header class="section-header reveal">
+      <span class="section-tag">Planes</span>
+      <h2 class="section-title">Elegí el plan<br />que se adapta a vos</h2>
+      <p class="section-subtitle">
+        Precios claros, sin cargos ocultos. Instalación gratuita en todos los
+        planes.
+      </p>
+    </header>
+
+    <div class="planes-grid">
+      {
+        plans.map(({ id, name, speed, desc, features, popular }) => (
+          <article
+            class={`plan-card reveal${popular ? " popular" : ""}`}
+            id={id}
+          >
+            {popular && <span class="popular-badge">Más Popular</span>}
+            <div class="plan-header">
+              <span class="plan-name">{name}</span>
+              <div class="plan-speed">
+                {speed} <span>Mbps</span>
+              </div>
+              <p class="plan-desc">{desc}</p>
+            </div>
+            <ul class="plan-features">
+              {features.map(({ label, included }) => (
+                <li class={included ? "" : "excluded"}>
+                  <span class={included ? "check" : "cross"}>
+                    {included ? "✓" : "✗"}
+                  </span>
+                  {label}
+                </li>
+              ))}
+            </ul>
+            <a
+              href="#contacto"
+              class={`btn-plan${popular ? " btn-plan-primary" : ""}`}
+              id={`btn-${id}`}
+            >
+              Contratar Plan
+            </a>
+          </article>
+        ))
+      }
+    </div>
+
+    <p class="planes-nota">
+      * Precios a consultar. Instalación gratuita en zona de cobertura.
+    </p>
+  </div>
+</section>
+
+<style>
+  .planes {
+    padding: 100px 0;
+  }
+
+  .planes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+
+  .plan-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 36px 28px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition:
+      border-color var(--transition),
+      transform var(--transition),
+      box-shadow var(--transition);
+  }
+  .plan-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  }
+  .plan-card.popular {
+    border-color: var(--accent);
+    box-shadow: 0 0 40px rgba(79, 195, 247, 0.12);
+    transform: scale(1.025);
+  }
+  .plan-card.popular:hover {
+    transform: scale(1.025) translateY(-4px);
+  }
+
+  .popular-badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: #000;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 16px;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+
+  .plan-header {
+    margin-bottom: 28px;
+  }
+  .plan-name {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .plan-speed {
+    font-size: 3.2rem;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    margin-bottom: 8px;
+  }
+  .plan-speed span {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0;
+  }
+  .plan-desc {
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  .plan-features {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 32px;
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    flex: 1;
+  }
+  .plan-features li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: var(--off-white);
+  }
+  .plan-features li.excluded {
+    color: rgba(255, 255, 255, 0.28);
+  }
+  .check {
+    color: #4ade80;
+    font-size: 1rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .cross {
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .btn-plan {
+    display: block;
+    text-align: center;
+    padding: 13px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    color: var(--white);
+    transition:
+      background var(--transition),
+      border-color var(--transition),
+      transform var(--transition);
+  }
+  .btn-plan:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+  .btn-plan-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+  }
+  .btn-plan-primary:hover {
+    background: #81d4fa;
+    border-color: #81d4fa;
+    color: #000;
+  }
+
+  .planes-nota {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: 40px;
+  }
+
+  @media (max-width: 1024px) {
+    .planes-grid {
+      grid-template-columns: 1fr;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .plan-card.popular {
+      transform: none;
+    }
+    .plan-card.popular:hover {
+      transform: translateY(-4px);
+    }
+  }
+</style>

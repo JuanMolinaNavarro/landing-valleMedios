@@ -1,0 +1,84 @@
+---
+// CtaBanner.astro
+---
+
+<section class="cta-banner" aria-label="Llamado a la acción">
+  <div class="cta-bg" aria-hidden="true"></div>
+  <div class="container cta-inner">
+    <div class="cta-text reveal">
+      <h2>¿Listo para conectarte<br />al futuro del valle?</h2>
+      <p>
+        Instalación gratuita &middot; Sin permanencia &middot; Soporte local
+      </p>
+    </div>
+    <div class="cta-actions reveal">
+      <a href="#contacto" class="btn-primary btn-large" id="btn-cta-contratar">
+        Contratar Ahora
+      </a>
+      <a href="tel:+549" class="btn-ghost" id="btn-cta-llamar"> Llamanos </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta-banner {
+    position: relative;
+    overflow: hidden;
+    padding: 90px 0;
+    background: #0a0a0a;
+  }
+  .cta-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(135deg, rgba(79, 195, 247, 0.08) 0%, transparent 60%),
+      radial-gradient(
+        ellipse at 80% 50%,
+        rgba(79, 195, 247, 0.06) 0%,
+        transparent 70%
+      );
+    pointer-events: none;
+  }
+
+  .cta-inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+
+  .cta-text h2 {
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+  }
+  .cta-text p {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .cta-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+  .btn-large {
+    padding: 15px 32px;
+    font-size: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    .cta-inner {
+      flex-direction: column;
+      text-align: center;
+    }
+    .cta-actions {
+      justify-content: center;
+    }
+  }
+</style>
