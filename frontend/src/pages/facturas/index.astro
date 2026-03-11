@@ -1,0 +1,261 @@
+---
+import PortalLayout from "../../layouts/PortalLayout.astro";
+---
+
+<PortalLayout title="Mis Facturas">
+  <div class="p-page-header">
+    <div class="p-container">
+      <h1 class="p-page-title">Mis Facturas</h1>
+      <p class="p-page-subtitle" id="facturas-subtitle">Consultá el historial de tus facturas</p>
+    </div>
+  </div>
+
+  <div class="p-container facturas-body">
+    <!-- Estado: cargando -->
+    <div id="state-loading" class="p-loader">
+      <div class="p-spinner"></div>
+      <span>Cargando facturas…</span>
+    </div>
+
+    <!-- Estado: error -->
+    <div id="state-error" class="p-alert p-alert--error facturas-alert" hidden role="alert">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span id="state-error-msg">No se pudieron cargar las facturas.</span>
+    </div>
+
+    <!-- Estado: sin resultados -->
+    <div id="state-empty" class="p-empty" hidden>
+      <div class="p-empty__icon">🧾</div>
+      <p class="p-empty__title">No tenés facturas disponibles</p>
+      <p class="p-empty__desc">Cuando se genere tu próxima factura, la verás aquí.</p>
+    </div>
+
+    <!-- Estado: tabla de facturas -->
+    <div id="state-data" class="p-card facturas-card" hidden>
+      <div class="facturas-card__top">
+        <p class="facturas-count" id="facturas-count"></p>
+      </div>
+      <div class="p-table-wrap">
+        <table class="p-table" id="facturas-table" aria-label="Listado de facturas">
+          <thead>
+            <tr>
+              <th scope="col">N° Comprobante</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Fecha emisión</th>
+              <th scope="col">Período</th>
+              <th scope="col">Vencimiento</th>
+              <th scope="col">Importe</th>
+              <th scope="col"><span class="sr-only">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody id="facturas-tbody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    import { getMe, getFacturas, getPdfUrl, formatPeso, ApiRequestError } from "../../lib/api.ts";
+    import type { FacturaResumen } from "../../lib/api.ts";
+
+    const stateLoading = document.getElementById("state-loading")!;
+    const stateError = document.getElementById("state-error")!;
+    const stateErrorMsg = document.getElementById("state-error-msg")!;
+    const stateEmpty = document.getElementById("state-empty")!;
+    const stateData = document.getElementById("state-data")!;
+    const tbody = document.getElementById("facturas-tbody")!;
+    const facturaCount = document.getElementById("facturas-count")!;
+    const subtitle = document.getElementById("facturas-subtitle")!;
+
+    function show(el: HTMLElement) { el.hidden = false; }
+    function hide(el: HTMLElement) { el.hidden = true; }
+
+    function showError(msg: string) {
+      hide(stateLoading); hide(stateEmpty); hide(stateData);
+      stateErrorMsg.textContent = msg;
+      show(stateError);
+    }
+
+    function renderRow(f: FacturaResumen): string {
+      const pdfUrl = getPdfUrl(f.nroCbte, f.tipoFac);
+      const detailUrl = `/facturas/${f.nroCbte}/${f.tipoFac}`;
+      const importe = formatPeso(f.impNetoVto1);
+      const badge = f.tipoFac === "A"
+        ? `<span class="p-badge p-badge--orange">Tipo A</span>`
+        : `<span class="p-badge p-badge--blue">Tipo ${f.tipoFac}</span>`;
+
+      return `
+        <tr>
+          <td class="cbte-col">
+            <span class="cbte-num">${f.nroCbte}</span>
+          </td>
+          <td>${badge}</td>
+          <td>${f.fecEmision ?? "—"}</td>
+          <td>${f.periodo ?? "—"}</td>
+          <td>
+            <span class="vto-date ${isVencido(f.fecVto1) ? "vto-vencido" : ""}">
+              ${f.fecVto1 ?? "—"}
+            </span>
+          </td>
+          <td class="importe-col">${importe}</td>
+          <td>
+            <div class="action-group">
+              <a
+                href="${detailUrl}"
+                class="p-btn p-btn--outline p-btn--sm"
+                aria-label="Ver detalle de factura ${f.nroCbte}"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                Ver detalle
+              </a>
+              <a
+                href="${pdfUrl}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="p-btn p-btn--ghost p-btn--sm"
+                aria-label="Abrir PDF de factura ${f.nroCbte}"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/>
+                  <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                PDF
+              </a>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
+
+    function isVencido(fecVto: string | null): boolean {
+      if (!fecVto) return false;
+      // Formato dd/MM/yyyy
+      const [d, m, y] = fecVto.split("/");
+      if (!d || !m || !y) return false;
+      const vto = new Date(Number(y), Number(m) - 1, Number(d));
+      return vto < new Date();
+    }
+
+    async function init() {
+      // 1) Autenticación
+      try {
+        const user = await getMe();
+        subtitle.textContent = `Hola, ${user.nombre.split(",")[0] ?? user.nombre}`;
+      } catch (e) {
+        if (e instanceof ApiRequestError && e.statusCode === 401) {
+          window.location.href = "/login";
+          return;
+        }
+        showError("Error al verificar la sesión.");
+        return;
+      }
+
+      // 2) Facturas
+      try {
+        const facturas = await getFacturas();
+
+        hide(stateLoading);
+
+        if (!facturas.length) {
+          show(stateEmpty);
+          return;
+        }
+
+        facturaCount.textContent = `${facturas.length} factura${facturas.length !== 1 ? "s" : ""} encontrada${facturas.length !== 1 ? "s" : ""}`;
+        tbody.innerHTML = facturas.map(renderRow).join("");
+        show(stateData);
+      } catch (e) {
+        if (e instanceof ApiRequestError && e.statusCode === 401) {
+          window.location.href = "/login";
+          return;
+        }
+        showError(e instanceof Error ? e.message : "No se pudieron cargar las facturas.");
+      }
+    }
+
+    init();
+  </script>
+</PortalLayout>
+
+<style>
+  .facturas-body {
+    padding-top: 32px;
+    padding-bottom: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .facturas-alert { margin: 0; }
+
+  .facturas-card { overflow: hidden; }
+  .facturas-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--p-border);
+  }
+  .facturas-count {
+    font-size: .825rem;
+    color: var(--p-text-muted);
+    font-weight: 500;
+  }
+
+  .cbte-num {
+    font-family: "Courier New", monospace;
+    font-size: .82rem;
+    color: var(--p-text-muted);
+    background: #f1f5f9;
+    padding: 2px 7px;
+    border-radius: 5px;
+  }
+
+  .importe-col {
+    font-weight: 700;
+    font-size: .95rem;
+    color: var(--p-text);
+    white-space: nowrap;
+  }
+
+  .vto-date { font-size: .85rem; }
+  .vto-vencido {
+    color: var(--p-danger);
+    font-weight: 600;
+  }
+
+  .action-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+
+  @media (max-width: 768px) {
+    .p-table th:nth-child(3),
+    .p-table td:nth-child(3),
+    .p-table th:nth-child(4),
+    .p-table td:nth-child(4) {
+      display: none;
+    }
+  }
+  @media (max-width: 560px) {
+    .p-table th:nth-child(2),
+    .p-table td:nth-child(2) {
+      display: none;
+    }
+  }
+</style>

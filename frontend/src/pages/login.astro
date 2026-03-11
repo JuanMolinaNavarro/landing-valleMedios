@@ -1,0 +1,248 @@
+---
+import PortalLayout from "../layouts/PortalLayout.astro";
+---
+
+<PortalLayout title="Iniciar sesión" public={true}>
+  <div class="login-root">
+    <div class="login-brand">
+      <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="44" height="44" rx="12" fill="#1a6ef5"/>
+        <path d="M11 16h22M11 22h16M11 28h12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h1 class="login-brand__name">Valle Medios</h1>
+        <p class="login-brand__subtitle">Portal de Abonados</p>
+      </div>
+    </div>
+
+    <div class="login-card p-card">
+      <div class="login-card__header">
+        <h2 class="login-card__title">Ingresá a tu cuenta</h2>
+        <p class="login-card__desc">Consultá tus facturas y el estado de tu servicio</p>
+      </div>
+
+      <form id="login-form" class="login-form" novalidate>
+        <div class="p-form-group">
+          <label for="nroAbonado" class="p-label">
+            Número de abonado
+          </label>
+          <input
+            id="nroAbonado"
+            name="nroAbonado"
+            type="text"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            class="p-input"
+            placeholder="Ej: 4238"
+            autocomplete="username"
+            required
+            aria-describedby="nroAbonado-hint"
+          />
+          <span id="nroAbonado-hint" class="field-hint">Encontralo en tu factura o en el contrato de servicio</span>
+        </div>
+
+        <div class="p-form-group">
+          <label for="nroDoc" class="p-label">
+            Número de documento <span class="p-label--hint">(DNI / CUIT)</span>
+          </label>
+          <input
+            id="nroDoc"
+            name="nroDoc"
+            type="text"
+            inputmode="numeric"
+            class="p-input"
+            placeholder="Ej: 23139395514"
+            autocomplete="current-password"
+            required
+            aria-describedby="nroDoc-hint"
+          />
+          <span id="nroDoc-hint" class="field-hint">Solo números, sin puntos ni guiones</span>
+        </div>
+
+        <div id="login-error" class="p-alert p-alert--error" hidden role="alert">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span id="login-error-msg">Error de autenticación</span>
+        </div>
+
+        <button
+          type="submit"
+          class="p-btn p-btn--primary login-submit"
+          id="login-submit"
+        >
+          <span id="login-submit-text">Ingresar</span>
+          <span id="login-submit-spinner" class="btn-spinner" hidden aria-hidden="true"></span>
+        </button>
+      </form>
+
+      <p class="login-footer-text">
+        ¿Problemas para acceder?
+        <a href="/#contacto" class="login-footer-link">Contactanos</a>
+      </p>
+    </div>
+
+    <p class="login-legal">
+      © {new Date().getFullYear()} Valle Medios — Sistema de uso exclusivo para abonados
+    </p>
+  </div>
+
+  <script>
+    import { login, getMe, ApiRequestError } from "../lib/api.ts";
+
+    const form = document.getElementById("login-form") as HTMLFormElement;
+    const errorBox = document.getElementById("login-error") as HTMLDivElement;
+    const errorMsg = document.getElementById("login-error-msg") as HTMLSpanElement;
+    const submitBtn = document.getElementById("login-submit") as HTMLButtonElement;
+    const submitText = document.getElementById("login-submit-text") as HTMLSpanElement;
+    const submitSpinner = document.getElementById("login-submit-spinner") as HTMLSpanElement;
+
+    function setLoading(loading: boolean) {
+      submitBtn.disabled = loading;
+      submitText.textContent = loading ? "Verificando…" : "Ingresar";
+      submitSpinner.hidden = !loading;
+    }
+
+    function showError(msg: string) {
+      errorMsg.textContent = msg;
+      errorBox.hidden = false;
+      errorBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function hideError() {
+      errorBox.hidden = true;
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideError();
+
+      const data = new FormData(form);
+      const nroAbonado = (data.get("nroAbonado") as string).trim();
+      const nroDoc = (data.get("nroDoc") as string).trim();
+
+      if (!nroAbonado || !nroDoc) {
+        showError("Por favor, completá todos los campos.");
+        return;
+      }
+
+      setLoading(true);
+      try {
+        await login(nroAbonado, nroDoc);
+        window.location.href = "/facturas";
+      } catch (err) {
+        if (err instanceof ApiRequestError) {
+          showError(err.message);
+        } else {
+          showError("No se pudo conectar con el servidor. Intentá más tarde.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    // Auto-redirect silencioso si ya hay sesión activa (no muestra errores)
+    getMe()
+      .then(() => { window.location.replace("/facturas"); })
+      .catch(() => { /* Sin sesión activa — normal, permanece en /login */ });
+  </script>
+
+</PortalLayout>
+
+<style>
+  .login-root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    background: linear-gradient(135deg, #f0f4ff 0%, #f4f6fb 40%, #eef2ff 100%);
+    gap: 24px;
+  }
+
+  .login-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .login-brand__name {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--p-text);
+    letter-spacing: -.02em;
+  }
+  .login-brand__subtitle {
+    font-size: .8rem;
+    color: var(--p-text-muted);
+    margin-top: 2px;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 36px 32px;
+  }
+
+  .login-card__header { margin-bottom: 28px; }
+  .login-card__title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--p-text);
+    letter-spacing: -.02em;
+    margin-bottom: 6px;
+  }
+  .login-card__desc { font-size: .875rem; color: var(--p-text-muted); }
+
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .field-hint {
+    font-size: .775rem;
+    color: var(--p-text-muted);
+    line-height: 1.4;
+  }
+
+  .login-submit {
+    width: 100%;
+    justify-content: center;
+    padding: 13px;
+    font-size: .95rem;
+    margin-top: 4px;
+  }
+
+  .btn-spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .login-footer-text {
+    text-align: center;
+    margin-top: 20px;
+    font-size: .8rem;
+    color: var(--p-text-muted);
+  }
+  .login-footer-link {
+    color: var(--p-accent);
+    font-weight: 600;
+  }
+  .login-footer-link:hover { text-decoration: underline; }
+
+  .login-legal {
+    font-size: .75rem;
+    color: var(--p-text-muted);
+    text-align: center;
+  }
+
+  @media (max-width: 480px) {
+    .login-card { padding: 28px 20px; }
+  }
+</style>

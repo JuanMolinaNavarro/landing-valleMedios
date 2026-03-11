@@ -1,0 +1,536 @@
+---
+import PortalLayout from "../../../layouts/PortalLayout.astro";
+const { nroCbte } = Astro.params;
+---
+
+<PortalLayout title={`Factura ${nroCbte}`}>
+
+  <!-- ── Page header ── -->
+  <div class="p-page-header">
+    <div class="p-container det-page-header">
+      <a href="/facturas" class="back-link" aria-label="Volver al listado">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Mis facturas
+      </a>
+      <div>
+        <h1 class="p-page-title" id="det-title">Detalle de Factura</h1>
+        <p class="p-page-subtitle" id="det-subtitle">Cargando…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Body ── -->
+  <div class="p-container det-body">
+
+    <!-- Estado: cargando -->
+    <div id="state-loading" class="p-loader">
+      <div class="p-spinner"></div>
+      <span>Cargando factura…</span>
+    </div>
+
+    <!-- Estado: error -->
+    <div id="state-error" class="p-alert p-alert--error" hidden role="alert">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span id="state-error-msg">No se pudo cargar la factura.</span>
+    </div>
+
+    <!-- Estado: contenido -->
+    <div id="state-data" hidden>
+
+      <!-- Barra de acción -->
+      <div class="det-toolbar">
+        <div class="det-toolbar__meta" id="toolbar-meta"></div>
+        <button id="btn-pdf" class="p-btn p-btn--primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/>
+            <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          Descargar / Ver PDF
+        </button>
+      </div>
+
+      <!-- ── Información del abonado ── -->
+      <section class="det-section" aria-labelledby="sec-info">
+        <div class="det-section__head">
+          <div class="det-section__icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h2 class="det-section__title" id="sec-info">Información del Abonado</h2>
+        </div>
+        <div class="info-grid" id="info-grid"></div>
+      </section>
+
+      <!-- ── Vencimientos ── -->
+      <section class="det-section" aria-labelledby="sec-vtos">
+        <div class="det-section__head">
+          <div class="det-section__icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+              <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+          <h2 class="det-section__title" id="sec-vtos">Vencimientos</h2>
+        </div>
+        <div class="vtos-row" id="vtos-row"></div>
+      </section>
+
+      <!-- ── Conceptos ── -->
+      <section class="det-section" aria-labelledby="sec-items">
+        <div class="det-section__head">
+          <div class="det-section__icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/>
+              <rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+          <h2 class="det-section__title" id="sec-items">Conceptos</h2>
+        </div>
+        <div class="p-table-wrap">
+          <table class="p-table items-table" aria-label="Conceptos de la factura">
+            <thead>
+              <tr>
+                <th scope="col" style="width:44px">#</th>
+                <th scope="col">Descripción</th>
+                <th scope="col" style="text-align:right">Neto</th>
+                <th scope="col" style="text-align:right">IVA</th>
+                <th scope="col" style="text-align:right">Total ítem</th>
+              </tr>
+            </thead>
+            <tbody id="items-tbody"></tbody>
+            <tfoot id="items-tfoot"></tfoot>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── Totales consolidados ── -->
+      <section class="det-section totales-section" aria-labelledby="sec-totales">
+        <div class="det-section__head">
+          <div class="det-section__icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h2 class="det-section__title" id="sec-totales">Totales</h2>
+        </div>
+        <div class="totales-body" id="totales-body"></div>
+      </section>
+
+      <!-- ── Pie: obs + datos fiscales ── -->
+      <div class="det-footer">
+        <div id="obs-block" hidden class="obs-alert p-alert p-alert--info">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <div><strong>Observaciones: </strong><span id="obs-text"></span></div>
+        </div>
+
+        <div class="fiscal-chip" id="fiscal-row">
+          <div class="fiscal-item">
+            <span class="fiscal-label">CAE</span>
+            <span class="fiscal-value mono" id="fiscal-cae">—</span>
+          </div>
+          <div class="fiscal-sep"></div>
+          <div class="fiscal-item">
+            <span class="fiscal-label">Vto. CAE</span>
+            <span class="fiscal-value" id="fiscal-vto-cae">—</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /state-data -->
+  </div>
+</PortalLayout>
+
+<!-- ─────────────────────────────────────────────── -->
+<!-- Script                                          -->
+<!-- ─────────────────────────────────────────────── -->
+<script>
+  import { getMe, getFacturaDetalle, getPdfUrl, formatPeso, ApiRequestError } from "../../../lib/api.ts";
+  import type { FacturaItem } from "../../../lib/api.ts";
+
+  const pathParts = window.location.pathname.split("/").filter(Boolean);
+  const nroCbte  = pathParts[1] ?? "";
+  const tipoFac  = pathParts[2] ?? "";
+
+  const stateLoading = document.getElementById("state-loading")!;
+  const stateError   = document.getElementById("state-error")!;
+  const stateErrMsg  = document.getElementById("state-error-msg")!;
+  const stateData    = document.getElementById("state-data")!;
+  const detTitle     = document.getElementById("det-title")!;
+  const detSubtitle  = document.getElementById("det-subtitle")!;
+  const toolbarMeta  = document.getElementById("toolbar-meta")!;
+  const infoGrid     = document.getElementById("info-grid")!;
+  const vtosRow      = document.getElementById("vtos-row")!;
+  const itemsTbody   = document.getElementById("items-tbody")!;
+  const itemsTfoot   = document.getElementById("items-tfoot")!;
+  const totalesBody  = document.getElementById("totales-body")!;
+  const obsBlock     = document.getElementById("obs-block")!;
+  const obsText      = document.getElementById("obs-text")!;
+  const fiscalCae    = document.getElementById("fiscal-cae")!;
+  const fiscalVto    = document.getElementById("fiscal-vto-cae")!;
+  const btnPdf       = document.getElementById("btn-pdf")!;
+
+  function showError(msg: string) {
+    stateLoading.hidden = true;
+    stateErrMsg.textContent = msg;
+    stateError.hidden = false;
+  }
+
+  // ── Helpers de renderizado ─────────────────────────
+  function infoField(label: string, value: string | null | number | undefined): string {
+    const val = (value !== null && value !== undefined && value !== "")
+      ? String(value)
+      : `<span class="null-val">Sin datos</span>`;
+    return `
+      <div class="info-field">
+        <span class="info-field__label">${label}</span>
+        <span class="info-field__value">${val}</span>
+      </div>`;
+  }
+
+  function vtoCard(num: string, fecha: string | null, netoVto: number, ivaTotal: number, primary = false): string {
+    const total = netoVto + ivaTotal;
+    return `
+      <div class="vto-card ${primary ? "vto-card--primary" : ""}">
+        <div class="vto-card__num">${num}</div>
+        <div class="vto-card__fecha">${fecha ?? "—"}</div>
+        <div class="vto-card__total">${formatPeso(total)}</div>
+        <div class="vto-card__breakdown">
+          <span>Neto: ${formatPeso(netoVto)}</span>
+          <span>IVA: ${formatPeso(ivaTotal)}</span>
+        </div>
+      </div>`;
+  }
+
+  function itemRow(item: FacturaItem): string {
+    const neto  = item.impItemNeto;
+    const iva   = item.iva;
+    const total = neto + iva;
+    return `
+      <tr>
+        <td class="td-num">${Number(item.item)}</td>
+        <td class="td-desc">
+          ${item.descripcion ?? "—"}
+          ${item.providers ? `<br><small class="item-sub">${item.providers}</small>` : ""}
+        </td>
+        <td class="td-money">${formatPeso(neto)}</td>
+        <td class="td-money">${formatPeso(iva)}</td>
+        <td class="td-money td-total-item">${formatPeso(total)}</td>
+      </tr>`;
+  }
+
+  // ── Inicialización ─────────────────────────────────
+  async function init() {
+    try { await getMe(); }
+    catch (e) {
+      if (e instanceof ApiRequestError && e.statusCode === 401) {
+        window.location.href = "/login"; return;
+      }
+      showError("Error al verificar la sesión."); return;
+    }
+
+    try {
+      const { header, items } = await getFacturaDetalle(nroCbte, tipoFac);
+
+      // ── Título de página
+      detTitle.textContent    = `Factura Tipo ${header.tipoFac} — N° ${header.nroCbte}`;
+      detSubtitle.textContent = `Período ${header.periodo ?? "—"}  ·  Emisión ${header.fecEmision ?? "—"}`;
+      toolbarMeta.innerHTML   = `<span class="p-badge p-badge--blue">Tipo ${header.tipoFac}</span>
+                                  <span class="toolbar-sep">·</span>
+                                  <span class="toolbar-cbte">N° ${header.nroCbte}</span>`;
+
+      // ── PDF
+      const pdfUrl = getPdfUrl(nroCbte, tipoFac);
+      btnPdf.addEventListener("click", () => window.open(pdfUrl, "_blank", "noopener,noreferrer"));
+
+      // ── Información general
+      infoGrid.innerHTML = [
+        infoField("N° Abonado",    header.nroAbonado),
+        infoField("Nombre",        header.apeNom),
+        infoField("CUIT / DNI",    header.cuit),
+        infoField("Condición IVA", header.desSitIva),
+        infoField("Domicilio",     header.domicilio),
+        infoField("Localidad",     [header.domRef, header.domLocal].filter(Boolean).join(" — ") || null),
+        infoField("Cobrador",      header.cobrador),
+        infoField("Email",         header.dirEmail ?? "Sin email registrado"),
+      ].join("");
+
+      // ── Vencimientos (total = neto_vto + iva fijo)
+      const iva = header.iva;
+      vtosRow.innerHTML = [
+        vtoCard("1° Vencimiento", header.fecVto1, header.impNetoVto1, iva, true),
+        vtoCard("2° Vencimiento", header.fecVto2, header.impNetoVto2, iva),
+        vtoCard("3° Vencimiento", header.fecVto3, header.impNetoVto3, iva),
+      ].join("");
+
+      // ── Conceptos
+      if (items.length) {
+        itemsTbody.innerHTML = items.map(itemRow).join("");
+
+        const sumNeto  = items.reduce((s, i) => s + i.impItemNeto, 0);
+        const sumIva   = items.reduce((s, i) => s + i.iva, 0);
+        const sumTotal = sumNeto + sumIva;
+        itemsTfoot.innerHTML = `
+          <tr class="tfoot-row">
+            <td colspan="2" style="font-weight:600;color:var(--p-text-muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;">Subtotales</td>
+            <td class="td-money tfoot-val">${formatPeso(sumNeto)}</td>
+            <td class="td-money tfoot-val">${formatPeso(sumIva)}</td>
+            <td class="td-money tfoot-val tfoot-final">${formatPeso(sumTotal)}</td>
+          </tr>`;
+      } else {
+        itemsTbody.innerHTML = `<tr><td colspan="5" class="td-empty">Sin conceptos disponibles</td></tr>`;
+      }
+
+      // ── Totales consolidados
+      // impNetoVto1 = base imponible (neto sin IVA)
+      // header.iva  = monto de IVA
+      // total real  = impNetoVto1 + header.iva
+      const totalNeto    = header.impNetoVto1;
+      const totalIva     = header.iva;
+      const totalGeneral = totalNeto + totalIva;
+
+      totalesBody.innerHTML = `
+        <div class="total-line">
+          <span class="total-line__label">Subtotal neto</span>
+          <span class="total-line__val">${formatPeso(totalNeto)}</span>
+        </div>
+        <div class="total-line">
+          <span class="total-line__label">IVA</span>
+          <span class="total-line__val">${formatPeso(totalIva)}</span>
+        </div>
+        <div class="total-line total-line--grand">
+          <span class="total-line__label">Total al 1° vencimiento</span>
+          <span class="total-line__val total-line__val--big">${formatPeso(totalGeneral)}</span>
+        </div>`;
+
+      // ── Observaciones
+      if (header.txtObs) {
+        obsText.textContent = header.txtObs;
+        obsBlock.hidden = false;
+      }
+
+      // ── Datos fiscales
+      fiscalCae.textContent = header.nroCae ?? "—";
+      fiscalVto.textContent = header.fevtoCae ?? "—";
+
+      stateLoading.hidden = true;
+      stateData.hidden    = false;
+
+    } catch (e) {
+      if (e instanceof ApiRequestError && e.statusCode === 401) {
+        window.location.href = "/login"; return;
+      }
+      showError(e instanceof Error ? e.message : "No se pudo cargar la factura.");
+    }
+  }
+
+  init();
+</script>
+
+<!-- ─────────────────────────────────────────────── -->
+<!-- Styles (is:global para cubrir HTML inyectado)   -->
+<!-- ─────────────────────────────────────────────── -->
+<style is:global>
+  /* ── Page header ── */
+  .det-page-header { display: flex; flex-direction: column; gap: 10px; }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: .8rem; font-weight: 600; color: var(--p-text-muted);
+    transition: color var(--p-transition);
+  }
+  .back-link:hover { color: var(--p-accent); }
+
+  /* ── Toolbar ── */
+  .det-body { padding-top: 28px; padding-bottom: 60px; display: flex; flex-direction: column; gap: 24px; }
+
+  .det-toolbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    flex-wrap: wrap;
+  }
+  .det-toolbar__meta { display: flex; align-items: center; gap: 10px; }
+  .toolbar-sep { color: var(--p-text-muted); }
+  .toolbar-cbte { font-family: "Courier New", monospace; font-size: .85rem; color: var(--p-text-muted); background: #f1f5f9; padding: 3px 8px; border-radius: 6px; }
+
+  /* ── Section card ── */
+  .det-section {
+    background: var(--p-surface);
+    border: 1px solid var(--p-border);
+    border-radius: var(--p-radius-lg);
+    box-shadow: var(--p-shadow);
+    overflow: hidden;
+  }
+  .det-section__head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--p-border);
+    background: #fafbfc;
+  }
+  .det-section__icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--p-accent-light); color: var(--p-accent);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .det-section__title {
+    font-size: .95rem; font-weight: 700; color: var(--p-text);
+    letter-spacing: -.01em;
+  }
+
+  /* ── Info grid ── */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+  .info-field {
+    display: flex; flex-direction: column; gap: 5px;
+    padding: 18px 20px;
+    border-right: 1px solid var(--p-border);
+    border-bottom: 1px solid var(--p-border);
+  }
+  /* quitar borde derecho de cada 4ta columna */
+  .info-field:nth-child(4n) { border-right: none; }
+  /* quitar borde bottom de los últimos 4 (última fila) */
+  .info-field:nth-last-child(-n+4) { border-bottom: none; }
+
+  .info-field__label {
+    font-size: .7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .08em;
+    color: var(--p-text-muted);
+  }
+  .info-field__value {
+    font-size: .875rem; font-weight: 500; color: var(--p-text);
+    line-height: 1.35;
+  }
+  .null-val { font-style: italic; color: #94a3b8; font-weight: 400; }
+
+  /* ── Vencimientos ── */
+  .vtos-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+  }
+  .vto-card {
+    display: flex; flex-direction: column; gap: 6px;
+    padding: 20px 24px;
+    border-right: 1px solid var(--p-border);
+    position: relative;
+    transition: background var(--p-transition);
+  }
+  .vto-card:last-child { border-right: none; }
+  .vto-card--primary { background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%); }
+
+  .vto-card__num {
+    font-size: .7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--p-text-muted);
+  }
+  .vto-card--primary .vto-card__num {
+    color: var(--p-accent);
+  }
+  .vto-card__fecha {
+    font-size: .9rem; font-weight: 600; color: var(--p-text);
+    margin-top: 2px;
+  }
+  .vto-card__total {
+    font-size: 1.3rem; font-weight: 800;
+    color: var(--p-text); letter-spacing: -.02em;
+    margin-top: 4px;
+  }
+  .vto-card--primary .vto-card__total { color: var(--p-accent); }
+  .vto-card__breakdown {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 6px;
+    font-size: .75rem; color: var(--p-text-muted); font-weight: 500;
+    padding-top: 8px;
+    border-top: 1px dashed var(--p-border);
+  }
+  .vto-card--primary .vto-card__breakdown { border-color: #bfdbfe; }
+
+  /* ── Tabla de conceptos ── */
+  .items-table .td-num {
+    text-align: center;
+    font-weight: 700; font-size: .8rem; color: var(--p-text-muted);
+  }
+  .items-table .td-desc { font-size: .875rem; }
+  .items-table .td-money {
+    text-align: right;
+    font-family: "Courier New", monospace; font-size: .875rem;
+    white-space: nowrap;
+  }
+  .items-table .td-total-item { font-weight: 700; color: var(--p-text); }
+  .item-sub { color: var(--p-text-muted); font-size: .75rem; }
+  .td-empty { text-align: center; color: var(--p-text-muted); padding: 32px !important; font-size: .875rem; }
+
+  /* tfoot */
+  .items-table tfoot { border-top: 2px solid var(--p-border); }
+  .tfoot-row td { padding: 12px 16px !important; background: #fafbfc; }
+  .tfoot-val { font-family: "Courier New", monospace; font-size: .875rem; font-weight: 600; text-align: right; color: var(--p-text); }
+  .tfoot-final { color: var(--p-accent) !important; font-size: .95rem !important; }
+
+  /* ── Totales ── */
+  .totales-section {}
+  .totales-body { padding: 8px 0; }
+  .total-line {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--p-border);
+  }
+  .total-line:last-child { border-bottom: none; }
+  .total-line--grand {
+    background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+    padding: 18px 24px;
+  }
+  .total-line__label { font-size: .875rem; color: var(--p-text-muted); font-weight: 500; }
+  .total-line--grand .total-line__label { color: var(--p-text); font-weight: 700; font-size: .95rem; }
+  .total-line__val { font-family: "Courier New", monospace; font-size: .95rem; font-weight: 700; color: var(--p-text); }
+  .total-line__val--big { font-size: 1.4rem; font-weight: 800; color: var(--p-accent); letter-spacing: -.02em; }
+
+  /* ── Footer ── */
+  .det-footer { display: flex; flex-direction: column; gap: 12px; }
+  .obs-alert {}
+  .fiscal-chip {
+    display: inline-flex; align-items: center; gap: 20px;
+    padding: 14px 20px;
+    background: var(--p-surface);
+    border: 1px solid var(--p-border);
+    border-radius: var(--p-radius-lg);
+    box-shadow: var(--p-shadow);
+    align-self: flex-start;
+  }
+  .fiscal-sep { width: 1px; height: 32px; background: var(--p-border); }
+  .fiscal-item { display: flex; flex-direction: column; gap: 3px; }
+  .fiscal-label { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--p-text-muted); }
+  .fiscal-value { font-size: .875rem; font-weight: 600; color: var(--p-text); }
+  .mono { font-family: "Courier New", monospace; letter-spacing: .05em; }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .info-grid { grid-template-columns: repeat(2, 1fr); }
+    .info-field:nth-child(4n) { border-right: unset; }
+    .info-field:nth-last-child(-n+4) { border-bottom: unset; }
+    .info-field:nth-child(2n) { border-right: none; }
+    .info-field:nth-last-child(-n+2) { border-bottom: none; }
+  }
+  @media (max-width: 640px) {
+    .vtos-row { grid-template-columns: 1fr; }
+    .vto-card { border-right: none; border-bottom: 1px solid var(--p-border); }
+    .vto-card:last-child { border-bottom: none; }
+    .info-grid { grid-template-columns: 1fr; }
+    .info-field { border-right: none; }
+    .info-field:nth-last-child(-n+2) { border-bottom: 1px solid var(--p-border); }
+    .info-field:last-child { border-bottom: none; }
+    .det-toolbar { flex-direction: column; align-items: flex-start; }
+  }
+</style>
