@@ -30,3 +30,7 @@ pnpm-debug.log*
 # OS files
 .DS_Store
 Thumbs.db
+
+#CLAUDE
+CLAUDE_PROMPT_FRONTEND
+CLAUDE

@@ -101,9 +101,8 @@ const { nroCbte } = Astro.params;
               <tr>
                 <th scope="col" style="width:44px">#</th>
                 <th scope="col">Descripción</th>
-                <th scope="col" style="text-align:right">Neto</th>
-                <th scope="col" style="text-align:right">IVA</th>
-                <th scope="col" style="text-align:right">Total ítem</th>
+                <th scope="col" style="text-align:right">IVA incl.</th>
+                <th scope="col" style="text-align:right">Importe</th>
               </tr>
             </thead>
             <tbody id="items-tbody"></tbody>
@@ -200,24 +199,20 @@ const { nroCbte } = Astro.params;
       </div>`;
   }
 
-  function vtoCard(num: string, fecha: string | null, netoVto: number, ivaTotal: number, primary = false): string {
-    const total = netoVto + ivaTotal;
+  // impNetoVtoX = bruto (ya incluye IVA) — es el importe real a pagar en cada vencimiento
+  function vtoCard(num: string, fecha: string | null, brutoVto: number, primary = false): string {
     return `
       <div class="vto-card ${primary ? "vto-card--primary" : ""}">
         <div class="vto-card__num">${num}</div>
         <div class="vto-card__fecha">${fecha ?? "—"}</div>
-        <div class="vto-card__total">${formatPeso(total)}</div>
-        <div class="vto-card__breakdown">
-          <span>Neto: ${formatPeso(netoVto)}</span>
-          <span>IVA: ${formatPeso(ivaTotal)}</span>
-        </div>
+        <div class="vto-card__total">${formatPeso(brutoVto)}</div>
       </div>`;
   }
 
+  // impItemNeto = bruto del ítem (IVA incluido); item.iva = IVA discriminado dentro del bruto
   function itemRow(item: FacturaItem): string {
-    const neto  = item.impItemNeto;
-    const iva   = item.iva;
-    const total = neto + iva;
+    const bruto = item.impItemNeto;   // importe total del ítem (lo que paga el cliente)
+    const iva   = item.iva;           // IVA discriminado (incluido en bruto)
     return `
       <tr>
         <td class="td-num">${Number(item.item)}</td>
@@ -225,9 +220,8 @@ const { nroCbte } = Astro.params;
           ${item.descripcion ?? "—"}
           ${item.providers ? `<br><small class="item-sub">${item.providers}</small>` : ""}
         </td>
-        <td class="td-money">${formatPeso(neto)}</td>
-        <td class="td-money">${formatPeso(iva)}</td>
-        <td class="td-money td-total-item">${formatPeso(total)}</td>
+        <td class="td-money td-iva-disc">${formatPeso(iva)}</td>
+        <td class="td-money td-total-item">${formatPeso(bruto)}</td>
       </tr>`;
   }
 
@@ -267,44 +261,43 @@ const { nroCbte } = Astro.params;
         infoField("Email",         header.dirEmail ?? "Sin email registrado"),
       ].join("");
 
-      // ── Vencimientos (total = neto_vto + iva fijo)
-      const iva = header.iva;
+      // ── Vencimientos
+      // impNetoVtoX ya es el importe BRUTO a pagar (IVA incluido)
       vtosRow.innerHTML = [
-        vtoCard("1° Vencimiento", header.fecVto1, header.impNetoVto1, iva, true),
-        vtoCard("2° Vencimiento", header.fecVto2, header.impNetoVto2, iva),
-        vtoCard("3° Vencimiento", header.fecVto3, header.impNetoVto3, iva),
+        vtoCard("1° Vencimiento", header.fecVto1, header.impNetoVto1, true),
+        vtoCard("2° Vencimiento", header.fecVto2, header.impNetoVto2),
+        vtoCard("3° Vencimiento", header.fecVto3, header.impNetoVto3),
       ].join("");
 
       // ── Conceptos
       if (items.length) {
         itemsTbody.innerHTML = items.map(itemRow).join("");
 
-        const sumNeto  = items.reduce((s, i) => s + i.impItemNeto, 0);
+        // Suma de brutos e IVAs discriminados de los ítems
+        const sumBruto = items.reduce((s, i) => s + i.impItemNeto, 0);
         const sumIva   = items.reduce((s, i) => s + i.iva, 0);
-        const sumTotal = sumNeto + sumIva;
         itemsTfoot.innerHTML = `
           <tr class="tfoot-row">
             <td colspan="2" style="font-weight:600;color:var(--p-text-muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;">Subtotales</td>
-            <td class="td-money tfoot-val">${formatPeso(sumNeto)}</td>
             <td class="td-money tfoot-val">${formatPeso(sumIva)}</td>
-            <td class="td-money tfoot-val tfoot-final">${formatPeso(sumTotal)}</td>
+            <td class="td-money tfoot-val tfoot-final">${formatPeso(sumBruto)}</td>
           </tr>`;
       } else {
-        itemsTbody.innerHTML = `<tr><td colspan="5" class="td-empty">Sin conceptos disponibles</td></tr>`;
+        itemsTbody.innerHTML = `<tr><td colspan="4" class="td-empty">Sin conceptos disponibles</td></tr>`;
       }
 
-      // ── Totales consolidados
-      // impNetoVto1 = base imponible (neto sin IVA)
-      // header.iva  = monto de IVA
-      // total real  = impNetoVto1 + header.iva
-      const totalNeto    = header.impNetoVto1;
-      const totalIva     = header.iva;
-      const totalGeneral = totalNeto + totalIva;
+      // ── Totales consolidados (misma lógica que el PDF del backend)
+      // impNetoVto1  = bruto a pagar al 1° vencimiento (IVA incluido)
+      // header.iva   = IVA discriminado (ya está dentro de impNetoVto1)
+      // subtotal neto = impNetoVto1 - iva
+      const brutoVto1  = header.impNetoVto1;
+      const totalIva   = header.iva;
+      const subtotalNeto = brutoVto1 - totalIva;
 
       totalesBody.innerHTML = `
         <div class="total-line">
-          <span class="total-line__label">Subtotal neto</span>
-          <span class="total-line__val">${formatPeso(totalNeto)}</span>
+          <span class="total-line__label">Subtotal neto (sin IVA)</span>
+          <span class="total-line__val">${formatPeso(subtotalNeto)}</span>
         </div>
         <div class="total-line">
           <span class="total-line__label">IVA</span>
@@ -312,7 +305,7 @@ const { nroCbte } = Astro.params;
         </div>
         <div class="total-line total-line--grand">
           <span class="total-line__label">Total al 1° vencimiento</span>
-          <span class="total-line__val total-line__val--big">${formatPeso(totalGeneral)}</span>
+          <span class="total-line__val total-line__val--big">${formatPeso(brutoVto1)}</span>
         </div>`;
 
       // ── Observaciones
@@ -469,6 +462,7 @@ const { nroCbte } = Astro.params;
     font-family: "Courier New", monospace; font-size: .875rem;
     white-space: nowrap;
   }
+  .items-table .td-iva-disc { color: var(--p-text-muted); font-size: .8rem !important; }
   .items-table .td-total-item { font-weight: 700; color: var(--p-text); }
   .item-sub { color: var(--p-text-muted); font-size: .75rem; }
   .td-empty { text-align: center; color: var(--p-text-muted); padding: 32px !important; font-size: .875rem; }
