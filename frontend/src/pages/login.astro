@@ -5,12 +5,14 @@ import PortalLayout from "../layouts/PortalLayout.astro";
 <PortalLayout title="Iniciar sesión" public={true}>
   <div class="login-root">
     <div class="login-brand">
-      <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <rect width="44" height="44" rx="12" fill="#1a6ef5"/>
-        <path d="M11 16h22M11 22h16M11 28h12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-      </svg>
+      <img
+        src="/img/Providers valle medios FO - Horizontal.png"
+        alt="Valle Medios Fibra Optica"
+        class="login-brand__logo"
+        width="250"
+        height="62"
+      />
       <div>
-        <h1 class="login-brand__name">Valle Medios</h1>
         <p class="login-brand__subtitle">Portal de Abonados</p>
       </div>
     </div>
@@ -158,31 +160,48 @@ import PortalLayout from "../layouts/PortalLayout.astro";
     align-items: center;
     justify-content: center;
     padding: 32px 16px;
-    background: linear-gradient(135deg, #f0f4ff 0%, #f4f6fb 40%, #eef2ff 100%);
+    background:
+      radial-gradient(circle at 14% 12%, rgba(79, 195, 247, 0.16), transparent 36%),
+      radial-gradient(circle at 86% 84%, rgba(79, 195, 247, 0.09), transparent 34%),
+      linear-gradient(165deg, #090909 0%, #111111 45%, #0d0d0d 100%);
     gap: 24px;
   }
 
   .login-brand {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 14px;
+    justify-content: center;
+    gap: 16px;
+    padding: 12px 16px;
+    border: 1px solid var(--p-border);
+    border-radius: var(--p-radius-lg);
+    background: rgba(255, 255, 255, 0.02);
+    box-shadow: var(--p-shadow);
   }
-  .login-brand__name {
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: var(--p-text);
-    letter-spacing: -.02em;
+
+  .login-brand__logo {
+    width: clamp(170px, 24vw, 250px);
+    height: auto;
+    object-fit: contain;
+    filter: brightness(0) saturate(100%) invert(100%);
   }
+
   .login-brand__subtitle {
-    font-size: .8rem;
+    font-size: .76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .1em;
     color: var(--p-text-muted);
-    margin-top: 2px;
   }
 
   .login-card {
     width: 100%;
     max-width: 420px;
     padding: 36px 32px;
+    background: rgba(24, 24, 24, 0.92);
+    border-color: var(--p-border-strong);
+    box-shadow: var(--p-shadow-md);
   }
 
   .login-card__header { margin-bottom: 28px; }
@@ -217,8 +236,8 @@ import PortalLayout from "../layouts/PortalLayout.astro";
 
   .btn-spinner {
     width: 16px; height: 16px;
-    border: 2px solid rgba(255,255,255,.4);
-    border-top-color: #fff;
+    border: 2px solid rgba(4, 18, 22, .35);
+    border-top-color: #041216;
     border-radius: 50%;
     animation: spin .7s linear infinite;
   }
@@ -243,6 +262,12 @@ import PortalLayout from "../layouts/PortalLayout.astro";
   }
 
   @media (max-width: 480px) {
+    .login-brand {
+      width: 100%;
+      justify-content: center;
+      padding: 12px;
+    }
+    .login-brand__logo { width: 190px; }
     .login-card { padding: 28px 20px; }
   }
 </style>

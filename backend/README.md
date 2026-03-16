@@ -44,3 +44,4 @@ Base path: `/api`
 - Ajustar nombres de columnas en repositorios si difieren en tu esquema real.
 - Para despliegue productivo, usar `COOKIE_SECURE=true` bajo HTTPS.
 - Si Chromium no está disponible en el host, definir `PUPPETEER_EXECUTABLE_PATH`.
+- Para renderizar `barCode` como barras en PDF, ubicar `PF_I2OF5_0.TTF` en `src/assets/fonts/`.

@@ -29,12 +29,14 @@ const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/a
     {!isPublic && (
       <header class="portal-header" id="portal-header">
         <div class="portal-header__inner">
-          <a href="/facturas" class="portal-logo" aria-label="Ir a mis facturas">
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <rect width="28" height="28" rx="8" fill="#1a6ef5"/>
-              <path d="M7 10h14M7 14h10M7 18h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            <span>Valle Medios</span>
+          <a href="/" class="portal-logo" aria-label="Ir a inicio">
+            <img
+              src="/img/Providers valle medios FO - Horizontal.png"
+              alt="Valle Medios Fibra Optica"
+              class="portal-logo__img"
+              width="210"
+              height="52"
+            />
             <span class="portal-badge">Portal</span>
           </a>
           <nav class="portal-nav" aria-label="Navegación del portal">
@@ -148,23 +150,25 @@ const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/a
   /* ─── Reset ─── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --p-bg: #f4f6fb;
-    --p-surface: #ffffff;
-    --p-border: #e2e8f0;
-    --p-text: #0f172a;
-    --p-text-muted: #64748b;
-    --p-accent: #1a6ef5;
-    --p-accent-hover: #1557d0;
-    --p-accent-light: #eff6ff;
-    --p-danger: #ef4444;
-    --p-success: #22c55e;
+    --p-bg: #0a0a0a;
+    --p-bg-soft: #111111;
+    --p-surface: #181818;
+    --p-border: rgba(255, 255, 255, 0.1);
+    --p-border-strong: rgba(255, 255, 255, 0.18);
+    --p-text: #ffffff;
+    --p-text-muted: rgba(255, 255, 255, 0.62);
+    --p-accent: #4fc3f7;
+    --p-accent-hover: #2ea6dc;
+    --p-accent-light: rgba(79, 195, 247, 0.15);
+    --p-danger: #fb7185;
+    --p-success: #34d399;
     --p-warning: #f59e0b;
-    --p-header-h: 64px;
+    --p-header-h: 80px;
     --p-radius: 10px;
     --p-radius-lg: 16px;
-    --p-shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
-    --p-shadow-md: 0 4px 16px rgba(0,0,0,.1);
-    --p-shadow-lg: 0 8px 32px rgba(0,0,0,.12);
+    --p-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    --p-shadow-md: 0 10px 30px rgba(0, 0, 0, 0.4);
+    --p-shadow-lg: 0 20px 42px rgba(0, 0, 0, 0.52);
     --p-font: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
     --p-ease: cubic-bezier(.4,0,.2,1);
     --p-transition: .2s var(--p-ease);
@@ -191,9 +195,10 @@ const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/a
     top: 0;
     z-index: 100;
     height: var(--p-header-h);
-    background: var(--p-surface);
+    background: rgb(26, 26, 26);
     border-bottom: 1px solid var(--p-border);
-    box-shadow: var(--p-shadow);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
   .portal-header__inner {
     display: flex;
@@ -208,13 +213,14 @@ const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/a
     display: flex;
     align-items: center;
     gap: 10px;
-    font-weight: 700;
-    font-size: 1.05rem;
-    color: var(--p-text);
-    text-decoration: none;
     flex-shrink: 0;
   }
-  .portal-logo:hover { color: var(--p-accent); }
+  .portal-logo__img {
+    width: clamp(150px, 15vw, 210px);
+    height: auto;
+    object-fit: contain;
+    filter: brightness(0) saturate(100%) invert(100%);
+}
   .portal-badge {
     font-size: 0.65rem;
     font-weight: 700;
@@ -222,7 +228,7 @@ const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/a
     letter-spacing: .08em;
     background: var(--p-accent-light);
     color: var(--p-accent);
-    border: 1px solid #bfdbfe;
+    border: 1px solid rgba(79, 195, 247, 0.35);
     padding: 2px 7px;
     border-radius: 100px;
   }
@@ -246,14 +252,14 @@ const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/a
     gap: 8px;
     padding: 7px 12px;
     border-radius: var(--p-radius);
-    border: 1px solid var(--p-border);
-    background: var(--p-surface);
+    border: 1px solid var(--p-border-strong);
+    background: rgba(255, 255, 255, 0.02);
     font-size: .875rem;
     font-weight: 500;
     color: var(--p-text);
     transition: background var(--p-transition), border-color var(--p-transition);
   }
-  .portal-user__btn:hover { background: var(--p-bg); border-color: #c7d2e3; }
+  .portal-user__btn:hover { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.3); }
   .portal-user__avatar {
     width: 28px; height: 28px;
     border-radius: 50%;
@@ -270,7 +276,7 @@ const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/a
     top: calc(100% + 8px);
     right: 0;
     min-width: 220px;
-    background: var(--p-surface);
+    background: #1a1a1a;
     border: 1px solid var(--p-border);
     border-radius: var(--p-radius-lg);
     box-shadow: var(--p-shadow-lg);
@@ -293,7 +299,7 @@ const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/a
     color: var(--p-danger);
     transition: background var(--p-transition);
   }
-  .portal-user__logout:hover { background: #fef2f2; }
+  .portal-user__logout:hover { background: rgba(251, 113, 133, 0.14); }
 
   /* ─── Main ─── */
   .portal-main { min-height: calc(100vh - var(--p-header-h)); }
@@ -307,7 +313,7 @@ const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/a
   .p-page-header {
     padding: 36px 0 28px;
     border-bottom: 1px solid var(--p-border);
-    background: var(--p-surface);
+    background: linear-gradient(180deg, #111111 0%, #141414 100%);
   }
   .p-page-title {
     font-size: 1.6rem; font-weight: 800;
@@ -334,14 +340,14 @@ const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/a
   .p-btn:focus-visible { outline: 2px solid var(--p-accent); outline-offset: 2px; }
   .p-btn:active { transform: scale(.98); }
 
-  .p-btn--primary { background: var(--p-accent); color: #fff; }
-  .p-btn--primary:hover { background: var(--p-accent-hover); box-shadow: 0 4px 12px rgba(26,110,245,.3); }
+  .p-btn--primary { background: var(--p-accent); color: #041216; }
+  .p-btn--primary:hover { background: var(--p-accent-hover); box-shadow: 0 8px 20px rgba(79, 195, 247, 0.32); }
 
-  .p-btn--outline { background: transparent; color: var(--p-accent); border: 1.5px solid var(--p-accent); }
+  .p-btn--outline { background: transparent; color: var(--p-accent); border: 1.5px solid rgba(79, 195, 247, 0.55); }
   .p-btn--outline:hover { background: var(--p-accent-light); }
 
   .p-btn--ghost { background: transparent; color: var(--p-text-muted); border: 1px solid var(--p-border); }
-  .p-btn--ghost:hover { background: var(--p-bg); color: var(--p-text); }
+  .p-btn--ghost:hover { background: rgba(255, 255, 255, 0.05); color: var(--p-text); }
 
   .p-btn--danger { background: var(--p-danger); color: #fff; }
   .p-btn--danger:hover { background: #dc2626; }
@@ -355,9 +361,9 @@ const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/a
     padding: 3px 9px; border-radius: 100px;
     white-space: nowrap;
   }
-  .p-badge--blue { background: var(--p-accent-light); color: var(--p-accent); border: 1px solid #bfdbfe; }
-  .p-badge--green { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
-  .p-badge--orange { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+  .p-badge--blue { background: var(--p-accent-light); color: var(--p-accent); border: 1px solid rgba(79, 195, 247, 0.35); }
+  .p-badge--green { background: rgba(52, 211, 153, 0.14); color: #6ee7b7; border: 1px solid rgba(110, 231, 183, 0.28); }
+  .p-badge--orange { background: rgba(245, 158, 11, 0.12); color: #fdba74; border: 1px solid rgba(251, 191, 36, 0.3); }
 
   /* ─── Status/feedback ─── */
   .p-alert {
@@ -365,9 +371,9 @@ const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/a
     padding: 14px 16px; border-radius: var(--p-radius);
     font-size: .875rem; line-height: 1.5;
   }
-  .p-alert--error { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
-  .p-alert--success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
-  .p-alert--info { background: var(--p-accent-light); border: 1px solid #bfdbfe; color: #1e40af; }
+  .p-alert--error { background: rgba(244, 63, 94, 0.16); border: 1px solid rgba(251, 113, 133, 0.38); color: #fecdd3; }
+  .p-alert--success { background: rgba(16, 185, 129, 0.13); border: 1px solid rgba(52, 211, 153, 0.3); color: #6ee7b7; }
+  .p-alert--info { background: rgba(79, 195, 247, 0.14); border: 1px solid rgba(79, 195, 247, 0.35); color: #bae6fd; }
 
   /* ─── Loader ─── */
   .p-loader {
@@ -377,7 +383,7 @@ const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/a
   }
   .p-spinner {
     width: 36px; height: 36px;
-    border: 3px solid var(--p-border);
+    border: 3px solid rgba(255, 255, 255, 0.2);
     border-top-color: var(--p-accent);
     border-radius: 50%;
     animation: spin .8s linear infinite;
@@ -390,7 +396,7 @@ const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/a
     gap: 12px; padding: 64px 24px; text-align: center;
     color: var(--p-text-muted);
   }
-  .p-empty__icon { font-size: 2.5rem; opacity: .5; }
+  .p-empty__icon { font-size: 2.5rem; opacity: .7; }
   .p-empty__title { font-size: 1.05rem; font-weight: 600; color: var(--p-text); }
   .p-empty__desc { font-size: .875rem; max-width: 340px; }
 
@@ -404,7 +410,7 @@ const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/a
     text-align: left; padding: 12px 16px;
     font-size: .72rem; font-weight: 700;
     color: var(--p-text-muted); text-transform: uppercase; letter-spacing: .07em;
-    background: #f8fafc; border-bottom: 1px solid var(--p-border);
+    background: rgba(255, 255, 255, 0.04); border-bottom: 1px solid var(--p-border);
     white-space: nowrap;
   }
   .p-table td {
@@ -413,7 +419,7 @@ const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/a
     vertical-align: middle;
   }
   .p-table tbody tr { transition: background var(--p-transition); }
-  .p-table tbody tr:hover { background: #f8fafc; }
+  .p-table tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
   .p-table tbody tr:last-child td { border-bottom: none; }
 
   /* ─── Form ─── */
@@ -424,19 +430,20 @@ const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/a
   .p-label--hint { font-weight: 400; color: var(--p-text-muted); margin-left: 4px; }
   .p-input {
     font-family: var(--p-font); font-size: .95rem; color: var(--p-text);
-    background: var(--p-surface); border: 1.5px solid var(--p-border);
+    background: rgba(255, 255, 255, 0.02); border: 1.5px solid var(--p-border);
     border-radius: var(--p-radius); padding: 11px 14px;
     transition: border-color var(--p-transition), box-shadow var(--p-transition);
     outline: none; width: 100%;
   }
-  .p-input:focus { border-color: var(--p-accent); box-shadow: 0 0 0 3px rgba(26,110,245,.15); }
-  .p-input::placeholder { color: #94a3b8; }
+  .p-input:focus { border-color: var(--p-accent); box-shadow: 0 0 0 3px rgba(79, 195, 247, 0.18); }
+  .p-input::placeholder { color: rgba(255, 255, 255, 0.4); }
   .p-input--error { border-color: var(--p-danger); }
   .p-input--error:focus { box-shadow: 0 0 0 3px rgba(239,68,68,.15); }
 
   /* ─── Responsive ─── */
   @media (max-width: 640px) {
     .portal-header__inner { padding: 0 16px; gap: 12px; }
+    .portal-logo__img { width: 145px; }
     .portal-nav { display: none; }
     .portal-user__name { display: none; }
     .p-container { padding: 0 16px; }

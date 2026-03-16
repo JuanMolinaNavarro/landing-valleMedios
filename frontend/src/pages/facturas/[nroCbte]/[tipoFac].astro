@@ -40,7 +40,7 @@ const { nroCbte } = Astro.params;
     </div>
 
     <!-- Estado: contenido -->
-    <div id="state-data" hidden>
+    <div id="state-data" class="det-content" hidden>
 
       <!-- Barra de acción -->
       <div class="det-toolbar">
@@ -347,6 +347,11 @@ const { nroCbte } = Astro.params;
 
   /* ── Toolbar ── */
   .det-body { padding-top: 28px; padding-bottom: 60px; display: flex; flex-direction: column; gap: 24px; }
+  .det-content {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
 
   .det-toolbar {
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -354,7 +359,15 @@ const { nroCbte } = Astro.params;
   }
   .det-toolbar__meta { display: flex; align-items: center; gap: 10px; }
   .toolbar-sep { color: var(--p-text-muted); }
-  .toolbar-cbte { font-family: "Courier New", monospace; font-size: .85rem; color: var(--p-text-muted); background: #f1f5f9; padding: 3px 8px; border-radius: 6px; }
+  .toolbar-cbte {
+    font-family: "Courier New", monospace;
+    font-size: .85rem;
+    color: var(--p-text-muted);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
 
   /* ── Section card ── */
   .det-section {
@@ -368,7 +381,7 @@ const { nroCbte } = Astro.params;
     display: flex; align-items: center; gap: 10px;
     padding: 16px 20px;
     border-bottom: 1px solid var(--p-border);
-    background: #fafbfc;
+    background: rgba(255, 255, 255, 0.04);
   }
   .det-section__icon {
     width: 30px; height: 30px; border-radius: 8px;
@@ -407,7 +420,7 @@ const { nroCbte } = Astro.params;
     font-size: .875rem; font-weight: 500; color: var(--p-text);
     line-height: 1.35;
   }
-  .null-val { font-style: italic; color: #94a3b8; font-weight: 400; }
+  .null-val { font-style: italic; color: rgba(255, 255, 255, 0.45); font-weight: 400; }
 
   /* ── Vencimientos ── */
   .vtos-row {
@@ -423,7 +436,7 @@ const { nroCbte } = Astro.params;
     transition: background var(--p-transition);
   }
   .vto-card:last-child { border-right: none; }
-  .vto-card--primary { background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%); }
+  .vto-card--primary { background: linear-gradient(135deg, rgba(79, 195, 247, 0.2) 0%, rgba(79, 195, 247, 0.07) 100%); }
 
   .vto-card__num {
     font-size: .7rem; font-weight: 700; text-transform: uppercase;
@@ -449,7 +462,7 @@ const { nroCbte } = Astro.params;
     padding-top: 8px;
     border-top: 1px dashed var(--p-border);
   }
-  .vto-card--primary .vto-card__breakdown { border-color: #bfdbfe; }
+  .vto-card--primary .vto-card__breakdown { border-color: rgba(79, 195, 247, 0.45); }
 
   /* ── Tabla de conceptos ── */
   .items-table .td-num {
@@ -469,7 +482,7 @@ const { nroCbte } = Astro.params;
 
   /* tfoot */
   .items-table tfoot { border-top: 2px solid var(--p-border); }
-  .tfoot-row td { padding: 12px 16px !important; background: #fafbfc; }
+  .tfoot-row td { padding: 12px 16px !important; background: rgba(255, 255, 255, 0.04); }
   .tfoot-val { font-family: "Courier New", monospace; font-size: .875rem; font-weight: 600; text-align: right; color: var(--p-text); }
   .tfoot-final { color: var(--p-accent) !important; font-size: .95rem !important; }
 
@@ -483,7 +496,7 @@ const { nroCbte } = Astro.params;
   }
   .total-line:last-child { border-bottom: none; }
   .total-line--grand {
-    background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+    background: linear-gradient(135deg, rgba(79, 195, 247, 0.2) 0%, rgba(79, 195, 247, 0.07) 100%);
     padding: 18px 24px;
   }
   .total-line__label { font-size: .875rem; color: var(--p-text-muted); font-weight: 500; }

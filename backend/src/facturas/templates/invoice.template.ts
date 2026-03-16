@@ -70,8 +70,13 @@ export function buildFacturaHtmlTemplate(
   factura: FacturaDetalleRecord,
   user: AuthenticatedUser,
   appName: string,
+  barcodeFontDataUri?: string | null,
 ): string {
   const subtotal = factura.header.impNetoVto1 - factura.header.iva;
+  const hasBarcodeFont = Boolean(asText(barcodeFontDataUri));
+  const barcodeEncodedValue = asText(factura.header.barCode);
+  const barcodeDigits = asText(factura.header.barDigito);
+  const barcodeLine = hasBarcodeFont && barcodeEncodedValue ? barcodeEncodedValue : barcodeDigits;
 
   return `
   <!doctype html>
@@ -81,6 +86,18 @@ export function buildFacturaHtmlTemplate(
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <title>Factura ${escapeHtml(factura.header.nroCbte)} - ${escapeHtml(appName)}</title>
       <style>
+        ${
+          hasBarcodeFont
+            ? `
+        @font-face {
+          font-family: "PF_I2OF5";
+          src: url("${escapeHtml(barcodeFontDataUri)}") format("truetype");
+          font-weight: normal;
+          font-style: normal;
+        }
+        `
+            : ''
+        }
         :root {
           color-scheme: light;
         }
@@ -170,6 +187,30 @@ export function buildFacturaHtmlTemplate(
           font-size: 10px;
           word-break: break-all;
         }
+        .barcode-bars {
+          margin-top: 14px;
+          letter-spacing: 0;
+          line-height: 1;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+        .barcode-bars--font {
+          font-family: "PF_I2OF5", "Courier New", monospace;
+          font-size: 42px;
+          font-weight: normal;
+        }
+        .barcode-bars--fallback {
+          font-family: "Courier New", monospace;
+          font-size: 12px;
+          letter-spacing: 1px;
+        }
+        .barcode-digits {
+          margin-top: 6px;
+          font-family: "Courier New", monospace;
+          font-size: 10px;
+          letter-spacing: 0.8px;
+          word-break: break-all;
+        }
       </style>
     </head>
     <body>
@@ -250,7 +291,10 @@ export function buildFacturaHtmlTemplate(
           </tr>
         </table>
 
-        <div class="barcode">${escapeHtml(asText(factura.header.barDigito) || asText(factura.header.barCode))}</div>
+        <div class="barcode">
+          <div class="barcode-bars ${hasBarcodeFont ? 'barcode-bars--font' : 'barcode-bars--fallback'}">${escapeHtml(barcodeLine)}</div>
+          <div class="barcode-digits">${escapeHtml(barcodeDigits || barcodeEncodedValue)}</div>
+        </div>
       </div>
     </body>
   </html>
