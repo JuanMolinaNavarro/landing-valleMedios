@@ -38,7 +38,8 @@ import PortalLayout from "../../layouts/PortalLayout.astro";
       <div class="facturas-card__top">
         <p class="facturas-count" id="facturas-count"></p>
       </div>
-      <div class="p-table-wrap">
+      <div id="facturas-mobile-list" class="facturas-mobile-list" aria-label="Listado compacto de facturas"></div>
+      <div class="p-table-wrap facturas-table-wrap">
         <table class="p-table" id="facturas-table" aria-label="Listado de facturas">
           <thead>
             <tr>
@@ -68,6 +69,7 @@ import PortalLayout from "../../layouts/PortalLayout.astro";
     const stateEmpty = document.getElementById("state-empty")!;
     const stateData = document.getElementById("state-data")!;
     const tbody = document.getElementById("facturas-tbody")!;
+    const mobileList = document.getElementById("facturas-mobile-list")!;
     const facturaCount = document.getElementById("facturas-count")!;
     const subtitle = document.getElementById("facturas-subtitle")!;
 
@@ -80,13 +82,17 @@ import PortalLayout from "../../layouts/PortalLayout.astro";
       show(stateError);
     }
 
+    function getBadgeTipo(tipoFac: string): string {
+      return tipoFac === "A"
+        ? `<span class="p-badge p-badge--orange">Tipo A</span>`
+        : `<span class="p-badge p-badge--blue">Tipo ${tipoFac}</span>`;
+    }
+
     function renderRow(f: FacturaResumen): string {
       const pdfUrl = getPdfUrl(f.nroCbte, f.tipoFac);
       const detailUrl = `/facturas/${f.nroCbte}/${f.tipoFac}`;
       const importe = formatPeso(f.impNetoVto1);
-      const badge = f.tipoFac === "A"
-        ? `<span class="p-badge p-badge--orange">Tipo A</span>`
-        : `<span class="p-badge p-badge--blue">Tipo ${f.tipoFac}</span>`;
+      const badge = getBadgeTipo(f.tipoFac);
 
       return `
         <tr>
@@ -134,6 +140,51 @@ import PortalLayout from "../../layouts/PortalLayout.astro";
       `;
     }
 
+    function renderMobileCard(f: FacturaResumen): string {
+      const pdfUrl = getPdfUrl(f.nroCbte, f.tipoFac);
+      const detailUrl = `/facturas/${f.nroCbte}/${f.tipoFac}`;
+      const importe = formatPeso(f.impNetoVto1);
+
+      return `
+        <article class="factura-item" aria-label="Factura ${f.nroCbte}">
+          <div class="factura-item__head">
+            <span class="factura-item__cbte">N° ${f.nroCbte}</span>
+            ${getBadgeTipo(f.tipoFac)}
+          </div>
+          <div class="factura-item__details">
+            <div class="factura-line">
+              <span class="factura-line__label">Vencimiento</span>
+              <span class="factura-line__value factura-line__value--vto">${f.fecVto1 ?? "—"}</span>
+            </div>
+            <div class="factura-line">
+              <span class="factura-line__label">Importe</span>
+              <span class="factura-line__value factura-line__value--importe">${importe}</span>
+            </div>
+          </div>
+          <div class="factura-item__footer">
+            <div class="factura-item__actions">
+              <a
+                href="${detailUrl}"
+                class="p-btn p-btn--outline p-btn--sm factura-item__detail-btn"
+                aria-label="Ver detalle de factura ${f.nroCbte}"
+              >
+                Ver detalle
+              </a>
+              <a
+                href="${pdfUrl}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="p-btn p-btn--ghost p-btn--sm"
+                aria-label="Abrir PDF de factura ${f.nroCbte}"
+              >
+                PDF
+              </a>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
     function isVencido(fecVto: string | null): boolean {
       if (!fecVto) return false;
       // Formato dd/MM/yyyy
@@ -170,6 +221,7 @@ import PortalLayout from "../../layouts/PortalLayout.astro";
 
         facturaCount.textContent = `${facturas.length} factura${facturas.length !== 1 ? "s" : ""} encontrada${facturas.length !== 1 ? "s" : ""}`;
         tbody.innerHTML = facturas.map(renderRow).join("");
+        mobileList.innerHTML = facturas.map(renderMobileCard).join("");
         show(stateData);
       } catch (e) {
         if (e instanceof ApiRequestError && e.statusCode === 401) {
@@ -239,6 +291,95 @@ import PortalLayout from "../../layouts/PortalLayout.astro";
     white-space: nowrap;
   }
 
+  .facturas-mobile-list {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 16px 20px;
+  }
+  .factura-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--p-border);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 440px;
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  }
+  .factura-item__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .factura-item__cbte {
+    font-family: "Courier New", monospace;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--p-text);
+  }
+  .factura-item__details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 2px;
+  }
+  .factura-line {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .factura-line__label {
+    font-size: .85rem;
+    letter-spacing: .01em;
+    color: var(--p-text-muted);
+    font-weight: 600;
+  }
+  .factura-line__value {
+    font-size: 1rem;
+    color: var(--p-text);
+    font-weight: 700;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .factura-line__value--vto {
+    color: #7dd3fc;
+    font-weight: 800;
+    letter-spacing: .01em;
+  }
+  .factura-line__value--importe {
+    font-size: 1.28rem;
+    letter-spacing: -.01em;
+    color: var(--p-accent);
+    font-weight: 900;
+  }
+  .factura-item__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--p-border);
+  }
+  .factura-item__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+  .factura-item__actions .p-btn {
+    justify-content: center;
+  }
+  .factura-item__detail-btn {
+    min-width: 112px;
+    justify-content: center;
+  }
+
   .sr-only {
     position: absolute; width: 1px; height: 1px;
     padding: 0; margin: -1px; overflow: hidden;
@@ -254,9 +395,29 @@ import PortalLayout from "../../layouts/PortalLayout.astro";
     }
   }
   @media (max-width: 560px) {
-    .p-table th:nth-child(2),
-    .p-table td:nth-child(2) {
+    .facturas-card__top {
+      padding: 16px 16px 14px;
+      justify-content: center;
+    }
+    .facturas-count {
+      text-align: center;
+    }
+    .facturas-table-wrap {
       display: none;
+    }
+    .facturas-mobile-list {
+      display: flex;
+      gap: 14px;
+      padding: 16px 14px 18px;
+    }
+    .factura-item__footer {
+      padding-top: 12px;
+    }
+    .factura-item__actions {
+      grid-template-columns: 1fr 1fr;
+    }
+    .factura-item__detail-btn {
+      flex: 1;
     }
   }
 </style>
