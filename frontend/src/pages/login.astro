@@ -13,7 +13,7 @@ import PortalLayout from "../layouts/PortalLayout.astro";
         height="62"
       />
       <div>
-        <p class="login-brand__subtitle">Portal de Abonados</p>
+        <p class="login-brand__subtitle">PORTAL DE ABONADOS</p>
       </div>
     </div>
 
@@ -77,6 +77,7 @@ import PortalLayout from "../layouts/PortalLayout.astro";
           <span id="login-submit-text">Ingresar</span>
           <span id="login-submit-spinner" class="btn-spinner" hidden aria-hidden="true"></span>
         </button>
+        <a href="/" class="p-btn p-btn--ghost login-back-home">Volver a inicio</a>
       </form>
 
       <p class="login-footer-text">
@@ -187,11 +188,16 @@ import PortalLayout from "../layouts/PortalLayout.astro";
   }
 
   .login-brand__subtitle {
-    font-size: .76rem;
-    font-weight: 700;
+    font-size: .92rem;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: .1em;
-    color: var(--p-text-muted);
+    letter-spacing: .12em;
+    color: var(--p-accent);
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(79, 195, 247, 0.35);
+    background: rgba(79, 195, 247, 0.12);
+    text-align: center;
   }
 
   .login-card {
@@ -231,6 +237,13 @@ import PortalLayout from "../layouts/PortalLayout.astro";
     padding: 13px;
     font-size: .95rem;
     margin-top: 4px;
+  }
+  .login-back-home {
+    width: 100%;
+    justify-content: center;
+    padding: 11px;
+    font-size: .9rem;
+    border-color: rgba(255, 255, 255, 0.2);
   }
 
   .btn-spinner {

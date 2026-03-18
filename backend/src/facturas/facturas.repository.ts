@@ -51,9 +51,20 @@ export interface FacturaItemRecord {
   providers: string | null;
 }
 
+export interface FacturaDeudaRecord {
+  nro: number;
+  nroCbte: number;
+  tipoFac: string;
+  tipCbte: string | null;
+  fechaVto: string | null;
+  importe: number;
+  isCurrent?: boolean;
+}
+
 export interface FacturaDetalleRecord {
   header: FacturaHeaderRecord;
   items: FacturaItemRecord[];
+  deuda: FacturaDeudaRecord[];
 }
 
 @Injectable()
@@ -157,6 +168,26 @@ export class FacturasRepository {
         WHERE g.nroAbonado = @nroAbonado
           AND CAST(g.nroCbte AS decimal(12, 0)) = @nroCbte
           AND UPPER(RIGHT(RTRIM(g.TipC), 1)) = @tipoFac
+      `);
+
+    return result.recordset;
+  }
+
+  async findDeudaByAbonado(nroAbonado: number): Promise<FacturaDeudaRecord[]> {
+    const pool = await this.databaseService.getPool();
+    const result = await pool
+      .request()
+      .input('nroAbonado', Int, nroAbonado).query<FacturaDeudaRecord>(`
+        SELECT
+          d.Nro AS nro,
+          CAST(d.nroCbte AS decimal(12, 0)) AS nroCbte,
+          UPPER(RIGHT(RTRIM(d.tipCbte), 1)) AS tipoFac,
+          NULLIF(LTRIM(RTRIM(d.tipCbte)), '') AS tipCbte,
+          NULLIF(LTRIM(RTRIM(d.FechaVto)), '') AS fechaVto,
+          d.Importe AS importe
+        FROM dbo.FacturaOnlineCbteDeuda d
+        WHERE d.Nro = @nroAbonado
+        ORDER BY CAST(d.nroCbte AS decimal(12, 0)) DESC
       `);
 
     return result.recordset;

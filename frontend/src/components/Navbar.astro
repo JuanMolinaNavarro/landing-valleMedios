@@ -34,8 +34,14 @@ const navLinks = [
           </a>
         ))
       }
+      <a href="/login" class="nav-link nav-link--portal-mobile">
+        Portal Cobranzas
+      </a>
     </nav>
 
+    <a href="/login" class="btn-portal" id="btn-portal-nav"
+      >Portal Cobranzas</a
+    >
     <a href="#planes" class="btn-contratar" id="btn-contratar-nav"
       >Contratar Ahora</a
     >
@@ -136,6 +142,32 @@ const navLinks = [
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   }
 
+  .btn-portal {
+    background: transparent;
+    color: #0a0a0a;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+    margin-right: 10px;
+    flex-shrink: 0;
+    transition:
+      background var(--transition),
+      border-color var(--transition),
+      transform var(--transition);
+  }
+  .btn-portal:hover {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.35);
+    transform: translateY(-1px);
+  }
+
+  .nav-link--portal-mobile {
+    display: none;
+  }
+
   /* Hamburger */
   .hamburger {
     display: none;
@@ -195,6 +227,17 @@ const navLinks = [
     }
     .btn-contratar {
       display: none;
+    }
+    .btn-portal {
+      display: none;
+    }
+    .nav-link--portal-mobile {
+      display: block;
+      margin-top: 8px;
+      text-align: center;
+      font-weight: 600;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 8px;
     }
     .hamburger {
       display: flex;

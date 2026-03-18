@@ -17,6 +17,7 @@ export class FacturasService {
   private readonly env = loadEnv();
   private readonly logger = new Logger(FacturasService.name);
   private barcodeFontDataUriCache: string | null | undefined;
+  private logoDataUriCache: string | null | undefined;
 
   constructor(
     private readonly facturasRepository: FacturasRepository,
@@ -52,7 +53,13 @@ export class FacturasService {
       normalizedTipoFac,
     );
 
-    return { header, items };
+    const deudaRaw = await this.facturasRepository.findDeudaByAbonado(nroAbonado);
+    const deuda = deudaRaw.map((row) => ({
+      ...row,
+      isCurrent: row.nroCbte === normalizedNroCbte && row.tipoFac === normalizedTipoFac,
+    }));
+
+    return { header, items, deuda };
   }
 
   async getFacturaPdf(
@@ -66,6 +73,7 @@ export class FacturasService {
       user,
       this.env.appName,
       this.getBarcodeFontDataUri(),
+      this.getLogoDataUri(),
     );
     const content = await this.pdfService.renderPdfFromHtml(html);
 
@@ -129,6 +137,36 @@ export class FacturasService {
       'Barcode font PF_I2OF5_0.TTF not found. Falling back to plain text barcode.',
     );
     this.barcodeFontDataUriCache = null;
+    return null;
+  }
+
+  private getLogoDataUri(): string | null {
+    if (this.logoDataUriCache !== undefined) {
+      return this.logoDataUriCache;
+    }
+
+    const logoPaths = [
+      join(process.cwd(), 'src', 'assets', 'images', 'vallemediosVertical.png'),
+      join(process.cwd(), 'assets', 'images', 'vallemediosVertical.png'),
+      join(process.cwd(), 'dist', 'assets', 'images', 'vallemediosVertical.png'),
+      join(process.cwd(), '..', 'frontend', 'public', 'img', 'vallemediosVertical.png'),
+      join(__dirname, '..', 'assets', 'images', 'vallemediosVertical.png'),
+    ];
+
+    for (const logoPath of logoPaths) {
+      try {
+        const fileBuffer = readFileSync(logoPath);
+        this.logoDataUriCache = `data:image/png;base64,${fileBuffer.toString('base64')}`;
+        return this.logoDataUriCache;
+      } catch {
+        // Try next location.
+      }
+    }
+
+    this.logger.warn(
+      'Logo file vallemediosVertical.png not found. Rendering PDF without logo image.',
+    );
+    this.logoDataUriCache = null;
     return null;
   }
 }

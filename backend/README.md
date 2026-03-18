@@ -27,7 +27,7 @@ Base path: `/api`
 
 - Cabecera de comprobante: `dbo.FacturaOnline`
 - Conceptos/ítems: `dbo.FacturaOnlineGrilla`
-- El bloque de deuda vencida (`dbo.FacturaOnlineCbteDeuda`) queda para una siguiente etapa.
+- Comprobantes adeudados: `dbo.FacturaOnlineCbteDeuda`
 
 ## Setup
 
