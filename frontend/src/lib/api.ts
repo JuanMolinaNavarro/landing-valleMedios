@@ -81,9 +81,20 @@ export interface FacturaItem {
   providers: string | null;
 }
 
+export interface FacturaDeuda {
+  nro: number;
+  nroCbte: number;
+  tipoFac: string;
+  tipCbte: string | null;
+  fechaVto: string | null;
+  importe: number;
+  isCurrent?: boolean;
+}
+
 export interface FacturaDetalle {
   header: FacturaHeader;
   items: FacturaItem[];
+  deuda: FacturaDeuda[];
 }
 
 // ──────────────────────────────────────────────────────────────
