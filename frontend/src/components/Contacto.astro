@@ -1,5 +1,4 @@
 ---
-// Contacto.astro
 interface ContactItem {
   id: string;
   icon: string;
@@ -8,37 +7,36 @@ interface ContactItem {
   href?: string;
 }
 
-const contactItems: ContactItem[] = [
-  {
-    id: "ci-telefono",
-    icon: `<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.13 12.72 19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>`,
-    title: "Teléfono",
-    detail: "0810 555 9434",
-  },
-  {
-    id: "ci-email",
-    icon: `<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>`,
-    title: "Email",
-    detail: "tdv_administracion@providers.com.ar",
-  },
+const directChannels: ContactItem[] = [
   {
     id: "ci-whatsapp",
     icon: `<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>`,
     title: "WhatsApp",
     detail: "+54 9 381 236 7037",
-    href: "https://wa.me/5493812367037",
+    href: "https://wa.me/5493812367037?text=Hola%2C%20quiero%20informacion%20sobre%20el%20servicio.",
+  },
+  {
+    id: "ci-telefono",
+    icon: `<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.13 12.72 19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>`,
+    title: "Telefono",
+    detail: "0810 555 9434",
+    href: "tel:08105559434",
+  },
+];
+
+const supportInfo: ContactItem[] = [
+  {
+    id: "ci-horarios",
+    icon: `<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`,
+    title: "Horarios de atencion",
+    detail: "Lun-Vie 09:00-13:00 y 16:00-20:00\nSab 09:00-13:00",
   },
   {
     id: "ci-zona",
     icon: `<circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.5 8 14 8 14s8-8.5 8-14a8 8 0 0 0-8-8z"/>`,
-    title: "Dirección",
-    detail: " Av. Calchaquí - Galería Las Queñuas - Local 9 (frente a Plazoleta de las Madres), Tafi del Valle, Tucumán, Argentina",
-  },
-  {
-    id: "ci-horarios",
-    icon: `<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`,
-    title: "Horarios de atención",
-    detail: "Lun–Vie 9:00–13:00 y 16:00-20:00 · Sáb 09:00–13:00",
+    title: "Direccion",
+    detail:
+      "Av. Calchaqui - Galeria Las Quenuas - Local 9, Tafi del Valle, Tucuman, Argentina",
   },
 ];
 ---
@@ -47,110 +45,75 @@ const contactItems: ContactItem[] = [
   <div class="container">
     <header class="section-header reveal">
       <span class="section-tag">Contacto</span>
-      <h2 class="section-title">Hablemos</h2>
+      <h2 class="section-title">Estamos para ayudarte</h2>
       <p class="section-subtitle">
-        Completá el formulario y te contactamos en menos de 24 horas hábiles.
+        Elegi un canal directo para hablar con el equipo y resolver tu consulta
+        en el momento.
       </p>
     </header>
 
     <div class="contacto-grid">
-      <!-- Form -->
-      <form class="contact-form reveal" id="contact-form" novalidate>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="nombre">Nombre completo</label>
-            <input
-              type="text"
-              id="nombre"
-              name="nombre"
-              placeholder="Tu nombre"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="telefono">Teléfono</label>
-            <input
-              type="tel"
-              id="telefono"
-              name="telefono"
-              placeholder="+54 9 ..."
-              required
-            />
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="email">Correo electrónico</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            placeholder="tu@email.com"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label for="direccion">Dirección</label>
-          <input
-            type="text"
-            id="direccion"
-            name="direccion"
-            placeholder="Calle, número, localidad"
-          />
-        </div>
-        <div class="form-group">
-          <label for="mensaje">Mensaje</label>
-          <textarea
-            id="mensaje"
-            name="mensaje"
-            rows={4}
-            placeholder="¿En qué podemos ayudarte?"></textarea>
-        </div>
-        <button
-          type="submit"
-          class="btn-primary btn-submit"
-          id="btn-enviar-form"
-        >
-          Enviar Consulta
-        </button>
-        <p
-          class="form-success"
-          id="form-success"
-          role="alert"
-          aria-live="polite"
-        >
-          ¡Mensaje enviado! Nos ponemos en contacto pronto.
+      <article class="contact-panel reveal">
+        <h3 class="panel-title">Canales directos</h3>
+        <p class="panel-copy">
+          La forma mas rapida de contactarnos es por WhatsApp o telefono.
         </p>
-      </form>
 
-      <!-- Info -->
+        <div class="quick-list">
+          {
+            directChannels.map(({ id, icon, title, detail, href }) => (
+              <a
+                class="quick-item"
+                id={id}
+                href={href}
+                target={href?.startsWith("http") ? "_blank" : undefined}
+                rel={href?.startsWith("http") ? "noopener noreferrer" : undefined}
+              >
+                <div class="contact-icon" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    set:html={icon}
+                  />
+                </div>
+                <div>
+                  <p class="quick-label">{title}</p>
+                  <p class="quick-detail">{detail}</p>
+                </div>
+              </a>
+            ))
+          }
+        </div>
+      </article>
+
       <aside class="contact-info reveal">
-        {
-          contactItems.map(({ id, icon, title, detail, href }) => (
-            <div class="contact-item" id={id}>
-              <div class="contact-icon" aria-hidden="true">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  set:html={icon}
-                />
+        <h3 class="panel-title">Informacion util</h3>
+        <p class="panel-copy">
+          Acercate personalmente a nuestra sucursal.
+        </p>
+        <div class="info-list">
+          {
+            supportInfo.map(({ id, icon, title, detail }) => (
+              <div class="contact-item" id={id}>
+                <div class="contact-icon" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    set:html={icon}
+                  />
+                </div>
+                <div>
+                  <h4>{title}</h4>
+                  <p>{detail}</p>
+                </div>
               </div>
-              <div>
-                <h3>{title}</h3>
-                {
-                  href ? (
-                    <a href={href} target="_blank" rel="noopener noreferrer">
-                      {detail}
-                    </a>
-                  ) : (
-                    <p>{detail}</p>
-                  )
-                }
-              </div>
-            </div>
-          ))
-        }
+            ))
+          }
+        </div>
       </aside>
     </div>
   </div>
@@ -163,93 +126,90 @@ const contactItems: ContactItem[] = [
 
   .contacto-grid {
     display: grid;
-    grid-template-columns: 1.3fr 1fr;
-    gap: 60px;
-    align-items: start;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px;
+    align-items: stretch;
   }
 
-  /* Form */
-  .contact-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .form-group label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--off-white);
-    letter-spacing: 0.02em;
-  }
-  .form-group input,
-  .form-group textarea {
-    background: rgba(255, 255, 255, 0.05);
+  .contact-panel,
+  .contact-info {
+    background: rgba(255, 255, 255, 0.02);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 16px;
-    color: var(--white);
-    font-family: var(--font);
-    font-size: 0.95rem;
-    outline: none;
-    resize: none;
+    border-radius: 14px;
+    padding: 28px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-title {
+    margin: 0;
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--off-white);
+  }
+
+  .panel-copy {
+    margin: 10px 0 0;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .quick-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 22px;
+  }
+
+  .quick-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    text-decoration: none;
     transition:
       border-color var(--transition),
-      background var(--transition);
-  }
-  .form-group input::placeholder,
-  .form-group textarea::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-  }
-  .form-group input:focus,
-  .form-group textarea:focus {
-    border-color: rgba(79, 195, 247, 0.5);
-    background: rgba(79, 195, 247, 0.05);
+      background var(--transition),
+      transform var(--transition);
   }
 
-  .btn-submit {
-    align-self: flex-start;
-    font-size: 1rem;
-    padding: 14px 32px;
-    cursor: pointer;
-    border: none;
-    font-family: var(--font);
+  .quick-item:hover {
+    border-color: rgba(79, 195, 247, 0.4);
+    background: rgba(79, 195, 247, 0.08);
+    transform: translateY(-2px);
   }
 
-  .form-success {
-    display: none;
-    color: #4ade80;
-    font-size: 0.9rem;
-    font-weight: 600;
-    padding: 12px 16px;
-    background: rgba(74, 222, 128, 0.08);
-    border: 1px solid rgba(74, 222, 128, 0.2);
-    border-radius: 8px;
-  }
-  .form-success.visible {
-    display: block;
+  .quick-label {
+    margin: 0;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--off-white);
   }
 
-  /* Info */
-  .contact-info {
+  .quick-detail {
+    margin: 6px 0 0;
+    color: var(--muted);
+  }
+
+  .info-list {
+    margin-top: 22px;
     display: flex;
     flex-direction: column;
-    gap: 28px;
-    padding-top: 8px;
+    gap: 22px;
   }
+
   .contact-item {
     display: flex;
     align-items: flex-start;
-    gap: 16px;
+    gap: 14px;
   }
+
   .contact-icon {
     width: 44px;
     height: 44px;
@@ -261,67 +221,32 @@ const contactItems: ContactItem[] = [
     justify-content: center;
     flex-shrink: 0;
   }
+
   .contact-icon svg {
     width: 20px;
     height: 20px;
     stroke: var(--accent);
   }
 
-  .contact-item h3 {
+  .contact-item h4 {
+    margin: 0;
     font-size: 0.78rem;
     font-weight: 700;
     color: var(--off-white);
-    margin-bottom: 4px;
-    text-transform: uppercase;
     letter-spacing: 0.05em;
-  }
-  .contact-item p {
-    color: var(--muted);
-    font-size: 0.92rem;
-    line-height: 1.6;
-  }
-  .contact-item a {
-    color: var(--muted);
-    font-size: 0.92rem;
-    line-height: 1.6;
-    text-decoration: none;
-    transition: color var(--transition);
-  }
-  .contact-item a:hover {
-    color: var(--accent);
+    text-transform: uppercase;
   }
 
-  @media (max-width: 768px) {
+  .contact-item p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    line-height: 1.6;
+    white-space: pre-line;
+  }
+
+  @media (max-width: 900px) {
     .contacto-grid {
-      grid-template-columns: 1fr;
-    }
-    .form-row {
       grid-template-columns: 1fr;
     }
   }
 </style>
-
-<script>
-  const form = document.getElementById(
-    "contact-form",
-  ) as HTMLFormElement | null;
-  const successMsg = document.getElementById("form-success");
-
-  form?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const btn = form.querySelector<HTMLButtonElement>(".btn-submit")!;
-    btn.textContent = "Enviando...";
-    btn.disabled = true;
-
-    setTimeout(() => {
-      btn.textContent = "¡Enviado!";
-      successMsg?.classList.add("visible");
-      form.reset();
-      setTimeout(() => {
-        btn.textContent = "Enviar Consulta";
-        btn.disabled = false;
-        successMsg?.classList.remove("visible");
-      }, 4000);
-    }, 1200);
-  });
-</script>

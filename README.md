@@ -1,102 +1,106 @@
-# Portal de Abonados — Valle Medios (Frontend)
+# Valle Medios - Portal de Abonados
 
-Frontend del portal web para abonados de Valle Medios. Construido con **Astro 4** en modo server-side (SSR) con adaptador Node.js.
+Proyecto dividido en 2 apps:
 
----
+- `frontend/`: Astro SSR (portal web).
+- `backend/`: NestJS (auth, facturas, PDF con Puppeteer, SQL Server).
 
-## Estructura del proyecto
+Este repo ya queda preparado para despliegue en **Ubuntu Server con Docker Compose** usando:
 
+- `frontend` (Node en puerto interno `4321`)
+- `backend` (Node en puerto interno `3001`)
+- `nginx` (entrypoint publico, proxy de `/` y `/api`)
+
+## Estructura Docker agregada
+
+- `frontend/Dockerfile`
+- `backend/Dockerfile`
+- `frontend/.dockerignore`
+- `backend/.dockerignore`
+- `docker-compose.yml`
+- `deploy/nginx/default.conf`
+- `.env.docker.example`
+- `backend/.env.docker.example`
+
+## Despliegue en Ubuntu
+
+1. Clonar repo en el servidor.
+2. Crear archivos de entorno:
+
+```bash
+cp .env.docker.example .env.docker
+cp backend/.env.docker.example backend/.env.docker
 ```
-frontend/
-└── src/
-    ├── lib/
-    │   └── api.ts              # Capa API centralizada + tipos TypeScript
-    ├── layouts/
-    │   ├── Layout.astro        # Layout de la landing pública
-    │   └── PortalLayout.astro  # Layout del portal autenticado (header + menú usuario)
-    ├── pages/
-    │   ├── index.astro         # Landing page pública
-    │   ├── login.astro         # /login — Formulario de autenticación
-    │   └── facturas/
-    │       ├── index.astro         # /facturas — Listado de facturas
-    │       └── [nroCbte]/
-    │           └── [tipoFac].astro # /facturas/:nroCbte/:tipoFac — Detalle
-    └── components/             # Componentes de la landing pública
+
+3. Editar `backend/.env.docker` con valores reales:
+   - `SQL_SERVER`, `SQL_DATABASE`, `SQL_USER`, `SQL_PASSWORD`
+   - `SESSION_SECRET` (obligatorio, largo y aleatorio)
+   - `CORS_ORIGIN` con tu dominio real (por ejemplo `https://portal.tudominio.com`)
+   - `COOKIE_SECURE=true` en produccion HTTPS
+4. (Opcional) Editar `.env.docker`:
+   - `APP_PORT` (por defecto `80`)
+   - `PUBLIC_API_BASE` (por defecto `/api`)
+   - `PUPPETEER_NO_SANDBOX`
+5. Levantar stack:
+
+```bash
+docker compose --env-file .env.docker up -d --build
 ```
 
----
+6. Ver logs:
 
-## Cómo levantar el frontend
+```bash
+docker compose --env-file .env.docker logs -f
+```
 
-### Desarrollo
+## Acceso y red
+
+- URL publica: `http://<IP-o-dominio>:APP_PORT`
+- `nginx` recibe trafico y enruta:
+  - `/` -> `frontend:4321`
+  - `/api/*` -> `backend:3001`
+- Los puertos internos de `frontend` y `backend` no se exponen al host.
+
+## Nota importante sobre SQL Server
+
+Si SQL Server esta en otra maquina, usar su IP/FQDN en `SQL_SERVER`.
+
+Si SQL Server esta en el mismo host Ubuntu donde corre Docker, podes usar:
+
+- `SQL_SERVER=host.docker.internal`
+
+El `docker-compose.yml` ya incluye:
+
+- `extra_hosts: "host.docker.internal:host-gateway"`
+
+## Operacion diaria
+
+Actualizar imagenes tras cambios de codigo:
+
+```bash
+docker compose --env-file .env.docker up -d --build
+```
+
+Parar servicios:
+
+```bash
+docker compose --env-file .env.docker down
+```
+
+## Desarrollo local sin Docker (opcional)
+
+Backend:
+
+```bash
+cd backend
+npm install
+npm run start:dev
+```
+
+Frontend:
 
 ```bash
 cd frontend
+npm install
 npm run dev
 ```
-
-El servidor de desarrollo corre en **http://localhost:4321**.
-
-### Producción
-
-```bash
-cd frontend
-npm run build
-node dist/server/entry.mjs
-```
-
----
-
-## Cómo cambiar la URL de la API
-
-La URL base de la API está definida en `src/lib/api.ts`:
-
-```ts
-export const API_BASE =
-  import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/api";
-```
-
-Para cambiarla sin tocar el código, creá un archivo `.env` en la carpeta `frontend/`:
-
-```env
-PUBLIC_API_BASE=http://mi-servidor.com/api
-```
-
-La variable `PUBLIC_API_BASE` tiene prioridad sobre el valor por defecto.
-
----
-
-## Flujo de autenticación
-
-- El backend usa **cookies HTTP-only** (no JWT, no localStorage).
-- Todas las llamadas al API usan `credentials: "include"` automáticamente.
-- Las páginas privadas verifican la sesión con `GET /auth/me` al cargar.
-- Si el backend responde `401`, el usuario es redirigido automáticamente a `/login`.
-
----
-
-## Páginas del portal
-
-| Ruta                          | Descripción                                        |
-| ----------------------------- | -------------------------------------------------- |
-| `/login`                      | Formulario de inicio de sesión                     |
-| `/facturas`                   | Listado de facturas del abonado                    |
-| `/facturas/:nroCbte/:tipoFac` | Detalle de una factura con concepts y vencimientos |
-
----
-
-## Notas técnicas
-
-- El modo `output: "server"` (SSR) permite rutas dinámicas sin `getStaticPaths`.
-- El adaptador `@astrojs/node@8` es compatible con Astro 4.x.
-- Los errores del backend se muestran directamente desde el campo `message` de la respuesta.
-- Los importes se formatean con el locale `es-AR` (pesos argentinos).
-- Las fechas vienen ya formateadas como `dd/MM/yyyy` desde el backend (no se parsean).
-
----
-
-## Requisitos
-
-- Node.js 18+
-- Backend NestJS corriendo en `http://localhost:3001` (o la URL configurada en `.env`)
-- CORS del backend configurado para `http://localhost:4321` (ya configurado por defecto)
