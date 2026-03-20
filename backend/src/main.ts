@@ -10,9 +10,14 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap(): Promise<void> {
   const env = loadEnv();
+  const corsOrigins = env.corsOrigin
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0);
+
   const app = await NestFactory.create(AppModule, {
     cors: {
-      origin: env.corsOrigin,
+      origin: corsOrigins.length <= 1 ? corsOrigins[0] : corsOrigins,
       credentials: true,
     },
   });
@@ -29,7 +34,7 @@ async function bootstrap(): Promise<void> {
   app.useGlobalFilters(new HttpExceptionFilter());
   app.setGlobalPrefix('api');
 
-  await app.listen(env.port);
+  await app.listen(env.port, '0.0.0.0');
 }
 
 void bootstrap();

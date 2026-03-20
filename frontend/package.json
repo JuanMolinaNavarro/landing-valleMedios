@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "astro dev --host 0.0.0.0 --port 4321",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview --host 0.0.0.0 --port 4321"
   },
   "dependencies": {
     "@astrojs/node": "^8.3.4",

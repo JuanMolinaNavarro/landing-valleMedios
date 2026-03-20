@@ -6,7 +6,7 @@ interface Props {
   public?: boolean;
 }
 const { title, description = "Portal de Abonados Valle Medios", public: isPublic = false } = Astro.props;
-const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/api";
+const API_BASE_ENV = (import.meta.env.PUBLIC_API_BASE ?? "").trim().replace(/\/+$/, "");
 ---
 
 <!doctype html>
@@ -77,7 +77,7 @@ const API_BASE_ENV = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/a
     </main>
     {!isPublic && (
       <script define:vars={{ API_BASE: API_BASE_ENV }}>
-        const _API_BASE = API_BASE;
+        const _API_BASE = API_BASE || `${window.location.protocol}//${window.location.hostname}:3001/api`;
 
         async function apiFetchDirect(path, init = {}) {
           const res = await fetch(`${_API_BASE}${path}`, {

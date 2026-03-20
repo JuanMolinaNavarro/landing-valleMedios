@@ -3,7 +3,24 @@
 // Fuente de verdad: /CLAUDE.md
 // ============================================================
 
-export const API_BASE = import.meta.env.PUBLIC_API_BASE ?? "http://localhost:3001/api";
+function trimTrailingSlash(value: string): string {
+  return value.replace(/\/+$/, "");
+}
+
+function resolveApiBase(): string {
+  const envBase = (import.meta.env.PUBLIC_API_BASE ?? "").trim();
+  if (envBase.length > 0) {
+    return trimTrailingSlash(envBase);
+  }
+
+  if (typeof window !== "undefined") {
+    return `${window.location.protocol}//${window.location.hostname}:3001/api`;
+  }
+
+  return "http://localhost:3001/api";
+}
+
+export const API_BASE = resolveApiBase();
 
 // ──────────────────────────────────────────────────────────────
 // Error tipado
