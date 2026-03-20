@@ -5,6 +5,7 @@ interface ContactItem {
   icon: string;
   title: string;
   detail: string;
+  href?: string;
 }
 
 const contactItems: ContactItem[] = [
@@ -12,13 +13,20 @@ const contactItems: ContactItem[] = [
     id: "ci-telefono",
     icon: `<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.13 12.72 19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>`,
     title: "Teléfono",
-    detail: "+54 9 381 554 0025",
+    detail: "0810 555 9434",
   },
   {
     id: "ci-email",
     icon: `<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>`,
     title: "Email",
     detail: "tdv_administracion@providers.com.ar",
+  },
+  {
+    id: "ci-whatsapp",
+    icon: `<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>`,
+    title: "WhatsApp",
+    detail: "+54 9 381 236 7037",
+    href: "https://wa.me/5493812367037",
   },
   {
     id: "ci-zona",
@@ -117,7 +125,7 @@ const contactItems: ContactItem[] = [
       <!-- Info -->
       <aside class="contact-info reveal">
         {
-          contactItems.map(({ id, icon, title, detail }) => (
+          contactItems.map(({ id, icon, title, detail, href }) => (
             <div class="contact-item" id={id}>
               <div class="contact-icon" aria-hidden="true">
                 <svg
@@ -130,7 +138,15 @@ const contactItems: ContactItem[] = [
               </div>
               <div>
                 <h3>{title}</h3>
-                <p>{detail}</p>
+                {
+                  href ? (
+                    <a href={href} target="_blank" rel="noopener noreferrer">
+                      {detail}
+                    </a>
+                  ) : (
+                    <p>{detail}</p>
+                  )
+                }
               </div>
             </div>
           ))
@@ -263,6 +279,16 @@ const contactItems: ContactItem[] = [
     color: var(--muted);
     font-size: 0.92rem;
     line-height: 1.6;
+  }
+  .contact-item a {
+    color: var(--muted);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+  .contact-item a:hover {
+    color: var(--accent);
   }
 
   @media (max-width: 768px) {

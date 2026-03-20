@@ -17,7 +17,7 @@ const API_BASE_ENV = (import.meta.env.PUBLIC_API_BASE ?? "").trim().replace(/\/+
     <title>{title} | Portal Valle Medios</title>
     <meta name="description" content={description} />
     <meta name="robots" content="noindex, nofollow" />
-    <link rel="icon" type="image/png" href="/img/Providers valle medios FO - Horizontal-1.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -31,11 +31,11 @@ const API_BASE_ENV = (import.meta.env.PUBLIC_API_BASE ?? "").trim().replace(/\/+
         <div class="portal-header__inner">
           <a href="/" class="portal-logo" aria-label="Ir a inicio">
             <img
-              src="/img/Providers valle medios FO - Horizontal.png"
+              src="/img/vallemediosVertical.png"
               alt="Valle Medios Fibra Optica"
               class="portal-logo__img"
-              width="210"
-              height="52"
+              width="78"
+              height="92"
             />
           </a>
           <nav class="portal-nav" aria-label="Navegación del portal">
@@ -162,7 +162,7 @@ const API_BASE_ENV = (import.meta.env.PUBLIC_API_BASE ?? "").trim().replace(/\/+
     --p-danger: #fb7185;
     --p-success: #34d399;
     --p-warning: #f59e0b;
-    --p-header-h: 80px;
+    --p-header-h: 96px;
     --p-radius: 10px;
     --p-radius-lg: 16px;
     --p-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
@@ -215,11 +215,11 @@ const API_BASE_ENV = (import.meta.env.PUBLIC_API_BASE ?? "").trim().replace(/\/+
     flex-shrink: 0;
   }
   .portal-logo__img {
-    width: clamp(150px, 15vw, 210px);
-    height: auto;
+    height: clamp(72px, 8vw, 92px);
+    width: auto;
     object-fit: contain;
     filter: brightness(0) saturate(100%) invert(100%);
-}
+  }
   .portal-badge {
     font-size: 0.65rem;
     font-weight: 700;
@@ -441,8 +441,8 @@ const API_BASE_ENV = (import.meta.env.PUBLIC_API_BASE ?? "").trim().replace(/\/+
 
   /* ─── Responsive ─── */
   @media (max-width: 640px) {
-    .portal-header__inner { padding: 0 16px; gap: 12px; }
-    .portal-logo__img { width: 145px; }
+    .portal-header__inner { padding: 0 16px; gap: 12px; justify-content: space-between; }
+    .portal-logo__img { height: 66px; }
     .portal-nav { display: none; }
     .portal-user__name { display: none; }
     .p-container { padding: 0 16px; }

@@ -3,7 +3,6 @@
 const navLinks = [
   { href: "#inicio", label: "Inicio" },
   { href: "#servicios", label: "Servicios" },
-  { href: "#planes", label: "Planes" },
   // { href: "#cobertura", label: "Cobertura" },
   { href: "#contacto", label: "Contacto" },
 ];
@@ -13,11 +12,11 @@ const navLinks = [
   <div class="nav-container container">
     <a href="#inicio" class="nav-logo" aria-label="Valle Medios — Inicio">
       <img
-        src="/img/Providers valle medios FO - Horizontal.png"
+        src="/img/vallemediosVertical.png"
         alt="Valle Medios Fibra Óptica"
         class="logo-img"
-        width="auto"
-        height="80"
+        width="82"
+        height="92"
       />
     </a>
 
@@ -42,7 +41,7 @@ const navLinks = [
     <a href="/login" class="btn-portal" id="btn-portal-nav"
       >Portal de Abonados</a
     >
-    <a href="#planes" class="btn-contratar" id="btn-contratar-nav"
+    <a href="#contacto" class="btn-contratar" id="btn-contratar-nav"
       >Contratar Ahora</a
     >
 
@@ -68,7 +67,7 @@ const navLinks = [
     right: 0;
     z-index: 1000;
     min-height: var(--nav-h);
-    height: 80px;
+    height: 96px;
     background: rgba(255, 255, 255, 0.97);
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     backdrop-filter: blur(12px);
@@ -92,9 +91,8 @@ const navLinks = [
     flex-shrink: 0;
   }
   .logo-img {
-    height: 150px;
+    height: 92px;
     width: auto;
-    max-width: 340px;
     object-fit: contain;
   }
 
@@ -205,6 +203,14 @@ const navLinks = [
 
   /* Responsive */
   @media (max-width: 768px) {
+    .nav-container {
+      justify-content: space-between;
+    }
+
+    .logo-img {
+      height: 78px;
+    }
+
     .nav-links {
       display: none;
       position: fixed;
@@ -241,6 +247,7 @@ const navLinks = [
     }
     .hamburger {
       display: flex;
+      margin-left: 0;
     }
   }
 </style>

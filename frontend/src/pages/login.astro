@@ -6,11 +6,11 @@ import PortalLayout from "../layouts/PortalLayout.astro";
   <div class="login-root">
     <div class="login-brand">
       <img
-        src="/img/Providers valle medios FO - Horizontal.png"
+        src="/img/vallemediosVertical.png"
         alt="Valle Medios Fibra Optica"
         class="login-brand__logo"
-        width="250"
-        height="62"
+        width="220"
+        height="268"
       />
       <div>
         <p class="login-brand__subtitle">PORTAL DE ABONADOS</p>
@@ -35,7 +35,7 @@ import PortalLayout from "../layouts/PortalLayout.astro";
             inputmode="numeric"
             pattern="[0-9]*"
             class="p-input"
-            placeholder="Ej: 4238"
+            placeholder="Ej: 1234"
             autocomplete="username"
             required
             aria-describedby="nroAbonado-hint"
@@ -53,7 +53,7 @@ import PortalLayout from "../layouts/PortalLayout.astro";
             type="text"
             inputmode="numeric"
             class="p-input"
-            placeholder="Ej: 23139395514"
+            placeholder="Ej: 12345678"
             autocomplete="current-password"
             required
             aria-describedby="nroDoc-hint"
@@ -181,7 +181,7 @@ import PortalLayout from "../layouts/PortalLayout.astro";
   }
 
   .login-brand__logo {
-    width: clamp(170px, 24vw, 250px);
+    width: clamp(180px, 30vw, 300px);
     height: auto;
     object-fit: contain;
     filter: brightness(0) saturate(100%) invert(100%);
@@ -279,7 +279,7 @@ import PortalLayout from "../layouts/PortalLayout.astro";
       justify-content: center;
       padding: 12px;
     }
-    .login-brand__logo { width: 190px; }
+    .login-brand__logo { width: 180px; }
     .login-card { padding: 28px 20px; }
   }
 </style>
