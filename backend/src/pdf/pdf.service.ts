@@ -1,4 +1,5 @@
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import { existsSync } from 'fs';
 import puppeteer, { Browser } from 'puppeteer';
 
 import { loadEnv } from '../config/env';
@@ -53,17 +54,46 @@ export class PdfService implements OnModuleDestroy {
       return this.browserPromise;
     }
 
+    const executablePath = this.resolveExecutablePath();
+    const launchArgs = this.env.puppeteerNoSandbox
+      ? ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+      : ['--disable-dev-shm-usage'];
+
     this.browserPromise = puppeteer
       .launch({
         headless: true,
-        executablePath: this.env.puppeteerExecutablePath,
-        args: this.env.puppeteerNoSandbox ? ['--no-sandbox', '--disable-setuid-sandbox'] : [],
+        executablePath,
+        args: launchArgs,
       })
       .then((browser) => {
         this.browser = browser;
+        this.logger.log(
+          `Puppeteer browser started${executablePath ? ` (${executablePath})` : ' (bundled)'}`,
+        );
         return browser;
+      })
+      .catch((error: unknown) => {
+        this.browserPromise = null;
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.error(`Puppeteer launch error: ${message}`);
+        throw error;
       });
 
     return this.browserPromise;
+  }
+
+  private resolveExecutablePath(): string | undefined {
+    if (this.env.puppeteerExecutablePath) {
+      return this.env.puppeteerExecutablePath;
+    }
+
+    const candidates = [
+      '/usr/bin/chromium',
+      '/usr/bin/chromium-browser',
+      '/usr/bin/google-chrome-stable',
+      '/usr/bin/google-chrome',
+    ];
+
+    return candidates.find((path) => existsSync(path));
   }
 }

@@ -2,6 +2,8 @@ FROM node:20-bookworm-slim AS build
 
 WORKDIR /app
 
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+
 COPY package*.json ./
 RUN npm ci
 
@@ -16,6 +18,7 @@ FROM node:20-bookworm-slim AS runtime
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
+    chromium \
     fonts-liberation \
     libasound2 \
     libatk-bridge2.0-0 \

@@ -76,7 +76,7 @@ export class FacturasRepository {
     const result = await pool
       .request()
       .input('nroAbonado', Int, nroAbonado).query<FacturaResumenRecord>(`
-        SELECT
+        SELECT TOP (6)
           f.nroAbonado AS nroAbonado,
           CAST(f.nroCbte AS decimal(12, 0)) AS nroCbte,
           UPPER(LTRIM(RTRIM(f.TipoFac))) AS tipoFac,
