@@ -49,9 +49,20 @@ export class AuthRepository {
             ),
             'Abonado'
           ) AS nombre
-        FROM dbo.tbAbonado a
-        WHERE a.nroAbonado = @nroAbonado
-          AND REPLACE(REPLACE(REPLACE(REPLACE(a.nroDoc, '.', ''), '-', ''), '/', ''), ' ', '') = @nroDoc
+        FROM (
+          SELECT
+            a.nroAbonado,
+            a.nroDoc,
+            a.apeTitu,
+            a.nomTitu,
+            a.apeFact,
+            a.nomFact,
+            REPLACE(REPLACE(REPLACE(REPLACE(CAST(a.nroDoc AS varchar(15)), '.', ''), '-', ''), '/', ''), ' ', '') AS normalizedDoc
+          FROM dbo.tbAbonado a
+          WHERE a.nroAbonado = @nroAbonado
+        ) a
+        WHERE a.normalizedDoc = @nroDoc
+          OR SUBSTRING(a.normalizedDoc, 3, LEN(a.normalizedDoc) - 3) = @nroDoc
       `);
 
     return result.recordset[0] ?? null;
