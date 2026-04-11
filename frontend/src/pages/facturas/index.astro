@@ -266,15 +266,18 @@ import PortalLayout from "../../layouts/PortalLayout.astro";
 
         const masReciente = ultimasFacturas[0];
         const detalleMasReciente = await getFacturaDetalle(masReciente.nroCbte, masReciente.tipoFac);
-        const deudaSet = new Set(
-          (detalleMasReciente.deuda ?? []).map((d: FacturaDeuda) => deudaKey(Number(d.nroCbte), d.tipoFac)),
+        const deudaMap = new Map<string, number>(
+          (detalleMasReciente.deuda ?? []).map((d: FacturaDeuda) => [deudaKey(Number(d.nroCbte), d.tipoFac), d.importe]),
         );
 
-        const facturasConEstado: FacturaListItem[] = ultimasFacturas.map((f, index) => ({
-          ...f,
-          estado: deudaSet.has(deudaKey(Number(f.nroCbte), f.tipoFac)) ? "Adeudada" : "Pagada",
-          isLatest: index === 0,
-        }));
+        const facturasConEstado: FacturaListItem[] = ultimasFacturas.map((f, index) => {
+          const importeDeuda = deudaMap.get(deudaKey(Number(f.nroCbte), f.tipoFac));
+          return {
+            ...f,
+            estado: importeDeuda !== undefined && importeDeuda >= 1000 ? "Adeudada" : "Pagada",
+            isLatest: index === 0,
+          };
+        });
 
         const mostradas = facturasConEstado.length;
         facturaCount.textContent = mostradas === 1
