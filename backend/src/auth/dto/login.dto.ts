@@ -5,9 +5,4 @@ export class LoginDto {
   @IsNotEmpty()
   @MaxLength(50)
   nroAbonado!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(30)
-  nroDoc!: string;
 }

@@ -20,7 +20,7 @@ import PortalLayout from "../layouts/PortalLayout.astro";
     <div class="login-card p-card">
       <div class="login-card__header">
         <h2 class="login-card__title">Ingresá a tu cuenta</h2>
-        <p class="login-card__desc">Consultá tus facturas y el estado de tu servicio</p>
+        <p class="login-card__desc">Ingresá tu número de abonado para consultar tus facturas</p>
       </div>
 
       <form id="login-form" class="login-form" novalidate>
@@ -41,24 +41,6 @@ import PortalLayout from "../layouts/PortalLayout.astro";
             aria-describedby="nroAbonado-hint"
           />
           <span id="nroAbonado-hint" class="field-hint">Encontralo en tu factura o en el contrato de servicio</span>
-        </div>
-
-        <div class="p-form-group">
-          <label for="nroDoc" class="p-label">
-            Número de documento o CUIT <span class="p-label--hint">(DNI / CUIT)</span>
-          </label>
-          <input
-            id="nroDoc"
-            name="nroDoc"
-            type="text"
-            inputmode="numeric"
-            class="p-input"
-            placeholder="Ej: 12345678"
-            autocomplete="current-password"
-            required
-            aria-describedby="nroDoc-hint"
-          />
-          <span id="nroDoc-hint" class="field-hint">Solo números, sin puntos ni guiones</span>
         </div>
 
         <div id="login-error" class="p-alert p-alert--error" hidden role="alert">
@@ -123,16 +105,15 @@ import PortalLayout from "../layouts/PortalLayout.astro";
 
       const data = new FormData(form);
       const nroAbonado = (data.get("nroAbonado") as string).trim();
-      const nroDoc = (data.get("nroDoc") as string).trim();
 
-      if (!nroAbonado || !nroDoc) {
-        showError("Por favor, completá todos los campos.");
+      if (!nroAbonado) {
+        showError("Ingresá tu número de abonado.");
         return;
       }
 
       setLoading(true);
       try {
-        await login(nroAbonado, nroDoc);
+        await login(nroAbonado);
         window.location.href = "/facturas";
       } catch (err) {
         if (err instanceof ApiRequestError) {

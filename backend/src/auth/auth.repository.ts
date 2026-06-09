@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Int, NVarChar } from 'mssql';
+import { Int } from 'mssql';
 
 import { DatabaseService } from '../database/database.service';
 
 interface AbonadoRecord {
   nroAbonado: number;
-  nroDoc: string;
+  nroDoc: string | null;
   nombre: string;
 }
 
@@ -13,12 +13,11 @@ interface AbonadoRecord {
 export class AuthRepository {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async findByCredentials(nroAbonado: number, nroDoc: string): Promise<AbonadoRecord | null> {
+  async findByAbonado(nroAbonado: number): Promise<AbonadoRecord | null> {
     const pool = await this.databaseService.getPool();
     const result = await pool
       .request()
-      .input('nroAbonado', Int, nroAbonado)
-      .input('nroDoc', NVarChar(15), nroDoc).query<AbonadoRecord>(`
+      .input('nroAbonado', Int, nroAbonado).query<AbonadoRecord>(`
         SELECT TOP (1)
           a.nroAbonado AS nroAbonado,
           CAST(a.nroDoc AS varchar(15)) AS nroDoc,
@@ -49,20 +48,8 @@ export class AuthRepository {
             ),
             'Abonado'
           ) AS nombre
-        FROM (
-          SELECT
-            a.nroAbonado,
-            a.nroDoc,
-            a.apeTitu,
-            a.nomTitu,
-            a.apeFact,
-            a.nomFact,
-            REPLACE(REPLACE(REPLACE(REPLACE(CAST(a.nroDoc AS varchar(15)), '.', ''), '-', ''), '/', ''), ' ', '') AS normalizedDoc
-          FROM dbo.tbAbonado a
-          WHERE a.nroAbonado = @nroAbonado
-        ) a
-        WHERE a.normalizedDoc = @nroDoc
-          OR SUBSTRING(a.normalizedDoc, 3, LEN(a.normalizedDoc) - 3) = @nroDoc
+        FROM dbo.tbAbonado a
+        WHERE a.nroAbonado = @nroAbonado
       `);
 
     return result.recordset[0] ?? null;

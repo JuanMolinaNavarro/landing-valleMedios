@@ -14,16 +14,15 @@ export class AuthService {
 
   async login(payload: LoginDto): Promise<{ user: AuthenticatedUser; sessionToken: string }> {
     const normalizedAbonado = this.normalizeAbonado(payload.nroAbonado);
-    const normalizedDni = this.normalizeDni(payload.nroDoc);
 
-    const abonado = await this.authRepository.findByCredentials(normalizedAbonado, normalizedDni);
+    const abonado = await this.authRepository.findByAbonado(normalizedAbonado);
     if (!abonado) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
     const user: AuthenticatedUser = {
       nroAbonado: String(abonado.nroAbonado),
-      nroDoc: this.normalizeDni(String(abonado.nroDoc)),
+      nroDoc: this.normalizeStoredDni(abonado.nroDoc),
       nombre: abonado.nombre,
     };
 
@@ -47,12 +46,7 @@ export class AuthService {
     return parsed;
   }
 
-  private normalizeDni(value: string): string {
-    const onlyNumbers = value.replace(/\D/g, '');
-    if (!onlyNumbers || onlyNumbers.length > 15) {
-      throw new UnauthorizedException('DNI inválido');
-    }
-
-    return onlyNumbers;
+  private normalizeStoredDni(value: string | null): string {
+    return String(value ?? '').replace(/\D/g, '');
   }
 }

@@ -148,10 +148,10 @@ export async function getMe(): Promise<AuthUser> {
   return data.user;
 }
 
-export async function login(nroAbonado: string, nroDoc: string): Promise<AuthUser> {
+export async function login(nroAbonado: string): Promise<AuthUser> {
   const data = await apiFetch<{ user: AuthUser }>("/auth/login", {
     method: "POST",
-    body: JSON.stringify({ nroAbonado, nroDoc }),
+    body: JSON.stringify({ nroAbonado }),
   });
   return data.user;
 }

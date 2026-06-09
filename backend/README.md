@@ -17,8 +17,8 @@ Base path: `/api`
 ## Reglas de seguridad aplicadas
 
 - La base SQL Server solo se consulta desde el backend.
-- El login valida `nroAbonado + nroDoc` contra `dbo.tbAbonado`.
-- El DNI se normaliza dejando solo números.
+- El login valida únicamente `nroAbonado` contra `dbo.tbAbonado`.
+- El frontend no solicita DNI/CUIT para iniciar sesión.
 - Cada consulta de factura filtra por `nroAbonado` autenticado.
 - Las queries usan parámetros (`mssql`) para evitar inyección SQL.
 - La sesión viaja en cookie `HTTP-only`.

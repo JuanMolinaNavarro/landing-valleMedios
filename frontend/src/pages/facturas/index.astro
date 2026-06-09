@@ -63,11 +63,21 @@ import PortalLayout from "../../layouts/PortalLayout.astro";
       isLatest: boolean;
     };
 
+    // Umbral de deuda: por debajo de este importe se considera ruido (redondeo/interes)
+    // y la factura se muestra como "Pagada". Ajustable (ej: 1, 10, 50).
+    const UMBRAL_DEUDA = 50;
+
     function show(el: HTMLElement) { el.hidden = false; }
     function hide(el: HTMLElement) { el.hidden = true; }
 
     function deudaKey(nroCbte: number, tipoFac: string): string {
       return `${nroCbte}-${tipoFac.trim().toUpperCase()}`;
+    }
+
+    // Las fechas vienen como dd/MM/yyyy. Devuelve epoch ms para ordenar (0 si no parsea).
+    function parseDmy(s: string | null): number {
+      const m = s?.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      return m ? new Date(+m[3], +m[2] - 1, +m[1]).getTime() : 0;
     }
 
     function getEstadoPill(estado: FacturaEstado): string {
@@ -254,7 +264,10 @@ import PortalLayout from "../../layouts/PortalLayout.astro";
       // 2) Facturas
       try {
         const facturasRaw = await getFacturas();
-        const facturasOrdenadas = [...facturasRaw].sort((a, b) => Number(b.nroCbte) - Number(a.nroCbte));
+        // Orden cronologico por fecha de emision (nroCbte NO es cronologico entre series A/B).
+        const facturasOrdenadas = [...facturasRaw].sort(
+          (a, b) => (parseDmy(b.fecEmision) - parseDmy(a.fecEmision)) || (Number(b.nroCbte) - Number(a.nroCbte)),
+        );
         const ultimasFacturas = facturasOrdenadas.slice(0, 6);
 
         hide(stateLoading);
@@ -274,7 +287,7 @@ import PortalLayout from "../../layouts/PortalLayout.astro";
           const importeDeuda = deudaMap.get(deudaKey(Number(f.nroCbte), f.tipoFac));
           return {
             ...f,
-            estado: importeDeuda !== undefined && importeDeuda >= 1000 ? "Adeudada" : "Pagada",
+            estado: importeDeuda !== undefined && importeDeuda >= UMBRAL_DEUDA ? "Adeudada" : "Pagada",
             isLatest: index === 0,
           };
         });

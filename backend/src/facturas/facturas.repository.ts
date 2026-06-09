@@ -91,7 +91,13 @@ export class FacturasRepository {
           f.nroAbonado,
           CAST(f.nroCbte AS decimal(12, 0)),
           UPPER(LTRIM(RTRIM(f.TipoFac)))
-        ORDER BY CAST(f.nroCbte AS decimal(12, 0)) DESC
+        -- Ocultar comprobantes de ajuste/notas chicas (ej: $150/$300): solo facturas reales.
+        HAVING MAX(f.impNetoVto1) >= 1000
+        -- nroCbte NO es cronologico (las series A y B tienen rangos distintos), asi que
+        -- ordenamos por fecha de emision real (formato dd/MM/yyyy => estilo 103).
+        ORDER BY
+          TRY_CONVERT(date, MAX(NULLIF(LTRIM(RTRIM(f.fecEmision)), '')), 103) DESC,
+          CAST(f.nroCbte AS decimal(12, 0)) DESC
       `);
 
     return result.recordset;
