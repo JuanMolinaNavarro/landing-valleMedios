@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { Decimal, Int, NVarChar } from 'mssql';
+import { Injectable } from "@nestjs/common";
+import { Decimal, Int, NVarChar } from "mssql";
 
-import { DatabaseService } from '../database/database.service';
+import { DatabaseService } from "../database/database.service";
 
 export interface FacturaResumenRecord {
   nroAbonado: number;
@@ -71,33 +71,52 @@ export interface FacturaDetalleRecord {
 export class FacturasRepository {
   constructor(private readonly databaseService: DatabaseService) {}
 
+  /**
+   * Listado de facturas del abonado.
+   *
+   * Lee dbo.tbCabFact directamente en lugar de la vista dbo.FacturaOnline.
+   * La vista hace 10 joins (incluida la vista agregada Saldos) y llama dos
+   * veces por fila a la funcion escalar Fcn_Barcode; para abonados con muchos
+   * comprobantes tarda 5 a 15 s y supera SQL_REQUEST_TIMEOUT_MS (500 en el
+   * portal). Contra la tabla base la misma consulta responde en ~50 ms.
+   *
+   * Reglas que se conservan respecto de la vista:
+   * - tipoFac = ultima letra de tipCbte (FACB -> B, NCRA -> A, etc.).
+   * - Solo comprobantes con fila en tbCtaCte (la vista hace INNER JOIN con
+   *   esa tabla; sin esta condicion aparecerian comprobantes que luego el
+   *   detalle no encuentra).
+   * - Se ocultan comprobantes de ajuste/notas chicas (importe < 1000).
+   */
   async findByAbonado(nroAbonado: number): Promise<FacturaResumenRecord[]> {
     const pool = await this.databaseService.getPool();
-    const result = await pool
-      .request()
-      .input('nroAbonado', Int, nroAbonado).query<FacturaResumenRecord>(`
+    const result = await pool.request().input("nroAbonado", Int, nroAbonado)
+      .query<FacturaResumenRecord>(`
         SELECT TOP (6)
           f.nroAbonado AS nroAbonado,
           CAST(f.nroCbte AS decimal(12, 0)) AS nroCbte,
-          UPPER(LTRIM(RTRIM(f.TipoFac))) AS tipoFac,
-          MAX(NULLIF(LTRIM(RTRIM(f.fecEmision)), '')) AS fecEmision,
-          MAX(NULLIF(LTRIM(RTRIM(f.Periodo)), '')) AS periodo,
-          MAX(NULLIF(LTRIM(RTRIM(f.ApeNom)), '')) AS apeNom,
-          MAX(f.impNetoVto1) AS impNetoVto1,
-          MAX(NULLIF(LTRIM(RTRIM(f.fecVto1)), '')) AS fecVto1
-        FROM dbo.FacturaOnline f
+          UPPER(RIGHT(RTRIM(f.tipCbte), 1)) AS tipoFac,
+          CONVERT(varchar(10), f.fecEmision, 103) AS fecEmision,
+          NULLIF(LTRIM(RTRIM(f.perAnio + '/' + f.perMes)), '/') AS periodo,
+          NULLIF(LTRIM(RTRIM(RTRIM(a.apeTitu) + ', ' + RTRIM(a.nomTitu))), ',') AS apeNom,
+          f.impNetoVto1 AS impNetoVto1,
+          CONVERT(varchar(10), f.fecVto1, 103) AS fecVto1
+        FROM dbo.tbCabFact f
+          INNER JOIN dbo.tbAbonado a
+            ON a.codCia = f.codCia
+           AND a.nroAbonado = f.nroAbonado
         WHERE f.nroAbonado = @nroAbonado
-        GROUP BY
-          f.nroAbonado,
-          CAST(f.nroCbte AS decimal(12, 0)),
-          UPPER(LTRIM(RTRIM(f.TipoFac)))
-        -- Ocultar comprobantes de ajuste/notas chicas (ej: $150/$300): solo facturas reales.
-        HAVING MAX(f.impNetoVto1) >= 1000
-        -- nroCbte NO es cronologico (las series A y B tienen rangos distintos), asi que
-        -- ordenamos por fecha de emision real (formato dd/MM/yyyy => estilo 103).
-        ORDER BY
-          TRY_CONVERT(date, MAX(NULLIF(LTRIM(RTRIM(f.fecEmision)), '')), 103) DESC,
-          CAST(f.nroCbte AS decimal(12, 0)) DESC
+          AND f.impNetoVto1 >= 1000
+          AND EXISTS (
+            SELECT 1
+            FROM dbo.tbCtaCte cc
+            WHERE cc.codCia = f.codCia
+              AND cc.nroAbonado = f.nroAbonado
+              AND cc.tipCbte = f.tipCbte
+              AND cc.nroCbte = f.nroCbte
+          )
+        -- nroCbte NO es cronologico (las series A y B tienen rangos distintos):
+        -- ordenamos por fecha de emision real (datetime en la tabla base).
+        ORDER BY f.fecEmision DESC, f.nroCbte DESC
       `);
 
     return result.recordset;
@@ -111,9 +130,9 @@ export class FacturasRepository {
     const pool = await this.databaseService.getPool();
     const result = await pool
       .request()
-      .input('nroAbonado', Int, nroAbonado)
-      .input('nroCbte', Decimal(12, 0), nroCbte)
-      .input('tipoFac', NVarChar(1), tipoFac).query<FacturaHeaderRecord>(`
+      .input("nroAbonado", Int, nroAbonado)
+      .input("nroCbte", Decimal(12, 0), nroCbte)
+      .input("tipoFac", NVarChar(1), tipoFac).query<FacturaHeaderRecord>(`
         SELECT TOP (1)
           f.nroAbonado AS nroAbonado,
           CAST(f.nroCbte AS decimal(12, 0)) AS nroCbte,
@@ -159,9 +178,9 @@ export class FacturasRepository {
     const pool = await this.databaseService.getPool();
     const result = await pool
       .request()
-      .input('nroAbonado', Int, nroAbonado)
-      .input('nroCbte', Decimal(12, 0), nroCbte)
-      .input('tipoFac', NVarChar(1), tipoFac).query<FacturaItemRecord>(`
+      .input("nroAbonado", Int, nroAbonado)
+      .input("nroCbte", Decimal(12, 0), nroCbte)
+      .input("tipoFac", NVarChar(1), tipoFac).query<FacturaItemRecord>(`
         SELECT
           ROW_NUMBER() OVER (
             ORDER BY NULLIF(LTRIM(RTRIM(g.Descripcion)), ''), g.impItemNeto DESC
@@ -181,9 +200,8 @@ export class FacturasRepository {
 
   async findDeudaByAbonado(nroAbonado: number): Promise<FacturaDeudaRecord[]> {
     const pool = await this.databaseService.getPool();
-    const result = await pool
-      .request()
-      .input('nroAbonado', Int, nroAbonado).query<FacturaDeudaRecord>(`
+    const result = await pool.request().input("nroAbonado", Int, nroAbonado)
+      .query<FacturaDeudaRecord>(`
         SELECT
           d.Nro AS nro,
           CAST(d.nroCbte AS decimal(12, 0)) AS nroCbte,
